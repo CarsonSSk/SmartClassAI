@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+data/fer2013/fer2013.zip
+data/fer2013/organized/
