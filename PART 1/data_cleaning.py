@@ -1,36 +1,35 @@
 import os
 import zipfile
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-import cv2
+import shutil
 
-# Define the dataset path
-dataset_path = 'data/fer2013/fer2013.zip'
+# Ensure the directory exists
+if not os.path.exists('data/fer2013'):
+    os.makedirs('data/fer2013')
 
-# Download the FER-2013 dataset using Kaggle API
-os.system('kaggle datasets download -d msambare/fer2013 -p data/fer2013')
+# Download the FER-2013 dataset using Kaggle API with --force option
+os.system('kaggle datasets download -d msambare/fer2013 -p data/fer2013 --force')
 
-# Extract the dataset
-with zipfile.ZipFile(dataset_path, 'r') as zip_ref:
-    zip_ref.extractall('data/fer2013')
+# Extract the dataset if not already extracted
+zip_path = 'data/fer2013/fer2013.zip'
+extract_path = 'data/fer2013'
+if not os.path.exists(os.path.join(extract_path, 'train')) or not os.path.exists(os.path.join(extract_path, 'test')):
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        zip_ref.extractall(extract_path)
 
-# Load the dataset
-data = pd.read_csv('data/fer2013/fer2013.csv')
-
-# Filter the dataset for the required classes
+# Define the required classes and corresponding subdirectories
 required_classes = ['happy', 'angry', 'neutral']
-class_mapping = {'happy': 3, 'angry': 0, 'neutral': 6}
-data = data[data['emotion'].isin(class_mapping.values())]
-
-# Map numerical labels to class names
-data['emotion'] = data['emotion'].map({v: k for k, v in class_mapping.items()})
+class_mapping = {'happy': 'happy', 'angry': 'angry', 'neutral': 'neutral'}
 
 # Create directories for organized data
 base_dir = 'data/fer2013/organized'
-if not os.path.exists(base_dir):
-    os.makedirs(base_dir)
 
+# Remove the existing directories if they exist
+for subset in ['train', 'test']:
+    subset_dir = os.path.join(base_dir, subset)
+    if os.path.exists(subset_dir):
+        shutil.rmtree(subset_dir)
+
+# Create directories for organized data
 for subset in ['train', 'test']:
     subset_dir = os.path.join(base_dir, subset)
     if not os.path.exists(subset_dir):
@@ -40,20 +39,27 @@ for subset in ['train', 'test']:
         if not os.path.exists(emotion_dir):
             os.makedirs(emotion_dir)
 
-# Split data into training and testing sets
-train_data, test_data = train_test_split(data, stratify=data['emotion'], test_size=0.2, random_state=42)
+# Helper function to copy images to the organized directory
+def copy_images(src_dir, dest_dir, limit):
+    count = 0
+    for filename in os.listdir(src_dir):
+        if count >= limit:
+            break
+        if filename.endswith(".png") or filename.endswith(".jpg") or filename.endswith(".jpeg"):
+            src_path = os.path.join(src_dir, filename)
+            dest_path = os.path.join(dest_dir, filename)
+            shutil.copyfile(src_path, dest_path)
+            count += 1
+    return count
 
-# Ensure each class has the required number of images
-train_data = train_data.groupby('emotion').head(400)
-test_data = test_data.groupby('emotion').head(100)
+# Copy images for each subset and each emotion
+for subset in ['train', 'test']:
+    for emotion in required_classes:
+        src_dir = os.path.join(extract_path, subset, class_mapping[emotion])
+        dest_dir = os.path.join(base_dir, subset, emotion)
+        limit = 400 if subset == 'train' else 100
+        copied_count = copy_images(src_dir, dest_dir, limit)
+        if copied_count < limit:
+            print(f"Warning: Only {copied_count} images copied for {emotion} in {subset}. Needed {limit}.")
 
-# Helper function to save images
-def save_images(data, subset):
-    for i, row in data.iterrows():
-        img = np.fromstring(row['pixels'], dtype=int, sep=' ').reshape(48, 48)
-        img_path = os.path.join(base_dir, subset, row['emotion'], f"{i}.png")
-        cv2.imwrite(img_path, img)
-
-# Save training and testing images
-save_images(train_data, 'train')
-save_images(test_data, 'test')
+print("Data preparation complete.")
