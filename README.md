@@ -15,7 +15,7 @@ In this part, we focus on:
 ### 1. Set Up the Environment Using `venv`
 1. **Navigate to the project directory:**
     ```bash
-    cd ~/Desktop/COMP472-Project/PART_1
+    ex.: cd ~/Desktop/COMP472-Project/PART_1
     ```
 
 2. **Create a virtual environment:**
