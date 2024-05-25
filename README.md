@@ -67,26 +67,26 @@ The `data_prep.py` script performs the following steps:
 After running the script, the directory structure will look like this:
 COMP472-Project/
 ├── PART_1/
-│   ├── data/
-│   │   ├── fer2013/
-│   │   │   ├── fer2013.zip
-│   │   │   └── organized/
-│   │   │       ├── train/
-│   │   │       │   ├── angry/
-│   │   │       │   ├── happy/
-│   │   │       │   └── neutral/
-│   │   │       └── test/
-│   │   │           ├── angry/
-│   │   │           ├── happy/
-│   │   │           └── neutral/
-│   ├── venv/
-│   │   ├── Include/
-│   │   ├── Lib/
-│   │   ├── Scripts/
-│   │   ├── pyvenv.cfg
-│   │   └── ...
-│   ├── requirements.txt
-│   ├── data_preparation.py
-│   └── README.md
+│ ├── data/
+│ │ ├── fer2013/
+│ │ │ ├── fer2013.zip
+│ │ │ └── organized/
+│ │ │ ├── train/
+│ │ │ │ ├── angry/
+│ │ │ │ ├── happy/
+│ │ │ │ └── neutral/
+│ │ │ └── test/
+│ │ │ ├── angry/
+│ │ │ ├── happy/
+│ │ │ └── neutral/
+│ ├── venv/
+│ │ ├── Include/
+│ │ ├── Lib/
+│ │ ├── Scripts/
+│ │ ├── pyvenv.cfg
+│ │ └── ...
+│ ├── requirements.txt
+│ ├── data_preparation.py
+│ └── README.md
 ├── .gitignore
 └── LICENSE
