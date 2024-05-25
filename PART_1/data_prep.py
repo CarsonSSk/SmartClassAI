@@ -1,6 +1,9 @@
 import os
 import zipfile
 import shutil
+import numpy as np
+from PIL import Image
+import pandas as pd
 
 # Ensure the directory exists
 if not os.path.exists('data/fer2013'):
@@ -39,8 +42,8 @@ for subset in ['train', 'test']:
         if not os.path.exists(emotion_dir):
             os.makedirs(emotion_dir)
 
-# Helper function to copy images to the organized directory
-def copy_images(src_dir, dest_dir, limit):
+# Helper function to process images
+def process_images(src_dir, dest_dir, limit, img_size=(48, 48)):
     count = 0
     for filename in os.listdir(src_dir):
         if count >= limit:
@@ -48,18 +51,31 @@ def copy_images(src_dir, dest_dir, limit):
         if filename.endswith(".png") or filename.endswith(".jpg") or filename.endswith(".jpeg"):
             src_path = os.path.join(src_dir, filename)
             dest_path = os.path.join(dest_dir, filename)
-            shutil.copyfile(src_path, dest_path)
+            img = Image.open(src_path).convert('L')
+            img = img.resize(img_size)
+            img_array = np.array(img) / 255.0  # Normalize pixel values to [0, 1]
+            img_array = (img_array * 255).astype(np.uint8)  # Convert back to uint8 format for saving
+            Image.fromarray(img_array).save(dest_path)
             count += 1
     return count
 
-# Copy images for each subset and each emotion
+# Copy and process images for each subset and each emotion
 for subset in ['train', 'test']:
     for emotion in required_classes:
         src_dir = os.path.join(extract_path, subset, class_mapping[emotion])
         dest_dir = os.path.join(base_dir, subset, emotion)
         limit = 400 if subset == 'train' else 100
-        copied_count = copy_images(src_dir, dest_dir, limit)
-        if copied_count < limit:
-            print(f"Warning: Only {copied_count} images copied for {emotion} in {subset}. Needed {limit}.")
+        processed_count = process_images(src_dir, dest_dir, limit)
+        if processed_count < limit:
+            print(f"Warning: Only {processed_count} images processed for {emotion} in {subset}. Needed {limit}.")
 
 print("Data preparation complete.")
+
+# Remove the original data directories to save space
+for subset in ['train', 'test']:
+    for emotion in required_classes:
+        dir_to_remove = os.path.join(extract_path, subset, class_mapping[emotion])
+        if os.path.exists(dir_to_remove):
+            shutil.rmtree(dir_to_remove)
+
+print("Original data removed.")
