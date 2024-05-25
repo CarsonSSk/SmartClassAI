@@ -47,13 +47,13 @@ In this part, we focus on:
     ```
 
 ### 2. Download and Prepare the Dataset
-1. **Run the `data_preparation.py` script to download, extract, and organize the dataset:**
+1. **Run the `data_prep.py` script to download, extract, and organize the dataset:**
     ```bash
-    python PART_1/data_preparation.py
+    python data_prep.py
     ```
 
 ### 3. Script Explanation
-The `data_preparation.py` script performs the following steps:
+The `data_prep.py` script performs the following steps:
 - Ensures the `data/fer2013` directory exists.
 - Downloads the FER-2013 dataset using the Kaggle API with the `--force` option.
 - Extracts the dataset if not already extracted.
