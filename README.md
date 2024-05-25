@@ -13,25 +13,55 @@ In this part, we focus on:
 ## How to Use
 
 ### 1. Set Up the Environment Using `venv`
-1. Create a virtual environment:
+1. **Navigate to the project directory:**
+    ```bash
+    cd ~/Desktop/COMP472-Project/PART_1
+    ```
+
+2. **Create a virtual environment:**
     ```bash
     python -m venv venv
     ```
-2. Activate the virtual environment:
-    - **Windows:**
+
+3. **Activate the virtual environment:**
+    - **Windows Command Prompt:**
       ```bash
       venv\Scripts\activate
       ```
-    - **Linux/macOS:**
+    - **Windows PowerShell:**
+      ```bash
+      .\venv\Scripts\Activate
+      ```
+    - **Git Bash or WSL:**
+      ```bash
+      source venv/Scripts/activate
+      ```
+    - **Linux/macOS Terminal:**
       ```bash
       source venv/bin/activate
       ```
-3. Install the required packages:
+
+4. **Install the required packages:**
     ```bash
-    pip install -r PART_1/requirements.txt
+    pip install -r requirements.txt
     ```
 
 ### 2. Download and Prepare the Dataset
-Run the `data_preparation.py` script to download and prepare the dataset:
-```bash
-python PART_1/data_preparation.py
+1. **Run the `data_preparation.py` script to download, extract, and organize the dataset:**
+    ```bash
+    python PART_1/data_preparation.py
+    ```
+
+### 3. Script Explanation
+The `data_preparation.py` script performs the following steps:
+- Ensures the `data/fer2013` directory exists.
+- Downloads the FER-2013 dataset using the Kaggle API with the `--force` option.
+- Extracts the dataset if not already extracted.
+- Defines the required classes (`happy`, `angry`, `neutral`) and corresponding subdirectories.
+- Creates directories for organized data.
+- Removes existing directories if they exist.
+- Copies images for each subset (`train`, `test`) and each emotion to the organized directory, ensuring that exactly 400 images per class are used for training and 100 images per class for testing.
+- Removes the original data directories to save space.
+
+### 4. Directory Structure
+After running the script, the directory structure will look like this:
