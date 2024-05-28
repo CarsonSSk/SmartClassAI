@@ -10,13 +10,6 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\PART_1\data\augmented_image_paths_and_labels.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="\PART_1\data\augmented_images.csv">
           <value>
             <Attribute>
