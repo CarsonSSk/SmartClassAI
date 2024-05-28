@@ -6,14 +6,14 @@ import pandas as pd
 import numpy as np
 import glob
 
-# Data importation section
+#Data importation section
 base_dir = "data"
 train_dir = os.path.join(base_dir, 'train')
 test_dir = os.path.join(base_dir, 'test')
 
 train_data = pd.read_csv(os.path.join(base_dir, 'train_dataset.csv'))
 
-# Ensure the output directory exists
+#Ensure the output directory exists
 augmented_dir = os.path.join(base_dir, 'augmentation')
 os.makedirs(augmented_dir, exist_ok=True)
 
@@ -24,22 +24,22 @@ for file in glob.glob(os.path.join(augmented_dir,"*")):
 #Augmentation parameters
 augmentation_factor = 2 #Number of augmented images to generate per source image
 
-# Function for augmenting images
+#Function for augmenting images
 def augment_image(image_path, output_folder, combined_train_data, num_augmented_images=augmentation_factor, target_size=(48, 48)):
     img = Image.open(image_path)
-    img_extension = os.path.splitext(image_path)[1]  # Extract file extension
+    img_extension = os.path.splitext(image_path)[1]  #Extract file extension
 
-    # Resize image
+    #Resize image
     img = img.resize(target_size)
 
-    # Convert image to grayscale
+    #Convert image to grayscale
     img = img.convert('L')
 
-    # Normalize pixel values to [0, 1]
+    #Normalize pixel values to [0, 1]
     img_array = np.array(img) / 255.0
     img = Image.fromarray(np.uint8(img_array * 255))
 
-    # Add original image to DataFrame
+    #Add original image to DataFrame
     extracted_label = train_data[train_data['Path'] == image_path]['Label'].values[0]
     if extracted_label in ['angry', 'happy', 'neutral', 'engaged']:
         label = extracted_label
@@ -71,7 +71,7 @@ def augment_image(image_path, output_folder, combined_train_data, num_augmented_
                 if name == "rot":
                     degree = random.randint(-30, 30)
                 elif name == "flip":
-                    degree = 0  # Flip does not need a degree
+                    degree = 0  #Flip does not need a degree
                 else:
                     degree = round(random.uniform(0.5, 1.5), 2)
 
@@ -79,7 +79,7 @@ def augment_image(image_path, output_folder, combined_train_data, num_augmented_
                 aug_name_parts.append(f"{name}{degree}")
 
             aug_name = f"{'_'.join(aug_name_parts)}_{os.path.basename(image_path)}"
-            aug_name = aug_name.replace(".", "_") + img_extension  # Add file extension
+            aug_name = aug_name.replace(".", "_") + img_extension  #Add file extension
             aug_path = os.path.join(output_folder, aug_name)
             augmented_img.save(aug_path)
             augmented_data = {'Path': aug_path, 'Label': label, 'Name': aug_name}
@@ -89,15 +89,15 @@ def augment_image(image_path, output_folder, combined_train_data, num_augmented_
 
     return combined_train_data
 
-# Initialize combined_train_data
+#Initialize combined_train_data
 combined_train_data = []
 
-# Augment training data
+#Augment training data
 for index, row in train_data.iterrows():
     combined_train_data = augment_image(row['Path'], augmented_dir, combined_train_data)
 
-# Write combined data to CSV
-csv_file = os.path.join(base_dir, 'augmented_images.csv') #includes original data
+#Write combined data to CSV
+csv_file = os.path.join(base_dir, 'augmented_images.csv') #Includes original data
 combined_train_df = pd.DataFrame(combined_train_data)
 combined_train_df.to_csv(csv_file, index=False)
 

@@ -4,22 +4,22 @@ import random
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-# Define base directory and subdirectories
+#Define base directory and subdirectories
 base_dir = "data"
 data_sources_dir = os.path.join(base_dir, 'dataSources')
 source_folders = ['fer2013', 'lfiw', 'kdef', 'teammates']
 labels = ['happy', 'angry', 'neutral', 'engaged']
 
-# Define the output CSV files
+#Define the output CSV files
 csv_file = os.path.join(base_dir, 'image_data.csv')
 csv_segmentation_file = os.path.join(base_dir, 'image_data_segmentation.csv')
 csv_shuffled_file = os.path.join(base_dir, 'image_data_shuffled.csv')
 
-# Function to generate the composite name
+#Function to generate the composite name
 def generate_composite_name(image_name, label, source):
     return f"{image_name}_{label}_{source}"
 
-# Collect data from all sources
+#Collect data from all sources
 data = []
 for source in source_folders:
     for label in labels:
@@ -32,7 +32,7 @@ for source in source_folders:
                     composite_name = generate_composite_name(image_name, label, source.upper())
                     data.append((filename, filepath, label, source.upper(), composite_name))
 
-# Write data to CSV
+#Write data to CSV
 with open(csv_file, mode='w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(['Image Name', 'Path', 'Label', 'Source', 'CompositeName'])
@@ -40,7 +40,7 @@ with open(csv_file, mode='w', newline='') as file:
 
 print(f'CSV file "{csv_file}" has been created with the following columns: Image Name, Path, Label, Source, CompositeName.')
 
-# Parameters for data segmentation
+#Parameters for data segmentation
 subset_counts = {
     'happy': 500,
     'angry': 500,
@@ -52,22 +52,22 @@ validation_percent = 0.2
 test_percent = 0.2
 seed = 2024
 
-# Create empty datasets
+#Create empty datasets
 train_dataset = pd.DataFrame(columns=['Path', 'CompositeName', 'Label'])
 validation_dataset = pd.DataFrame(columns=['Path', 'CompositeName', 'Label'])
 test_dataset = pd.DataFrame(columns=['Path', 'CompositeName', 'Label'])
 
-# Shuffle the data
+#Shuffle the data
 data_df = pd.read_csv(csv_file)
 shuffled_data = data_df.sample(frac=1, random_state=seed)
 shuffled_data.to_csv(csv_shuffled_file, index=False)
 
-# Calculate number of images for each set from each class
+#Calculate number of images for each set from each class
 train_counts = {label: int(count * train_percent) for label, count in subset_counts.items()}
 validation_counts = {label: int(count * validation_percent) for label, count in subset_counts.items()}
 test_counts = {label: int(count * test_percent) for label, count in subset_counts.items()}
 
-# Assign images from each class to train, validation, and test sets
+#Assign images from each class to train, validation, and test sets
 for label, count in subset_counts.items():
     label_data = shuffled_data[shuffled_data['Label'] == label]
     train_count = train_counts[label]
@@ -78,17 +78,17 @@ for label, count in subset_counts.items():
     validation_dataset = pd.concat([validation_dataset, label_data[train_count:train_count + validation_count]], ignore_index=True)
     test_dataset = pd.concat([test_dataset, label_data[train_count + validation_count:train_count + validation_count + test_count]], ignore_index=True)
 
-# Write the train, validation and test datasets to CSV
+#Write the train, validation and test datasets to CSV
 train_dataset.to_csv(os.path.join(base_dir, 'train_dataset.csv'), index=False)
 validation_dataset.to_csv(os.path.join(base_dir, 'validation_dataset.csv'), index=False)
 test_dataset.to_csv(os.path.join(base_dir, 'test_dataset.csv'), index=False)
 
-# Calculate total counts for each class
+#Calculate total counts for each class
 total_counts = {
     label: len(shuffled_data[shuffled_data['Label'] == label]) for label in labels
 }
 
-# Calculate total counts
+#Calculate total counts
 total_count = sum(total_counts.values())
 
 print("Distribution of images in each set:")
