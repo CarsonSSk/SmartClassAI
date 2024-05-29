@@ -34,11 +34,11 @@ In this part, we focus on:
       ```
     - **Git Bash or WSL:**
       ```bash
-      source venv/Scripts/activate
+      sourceData venv/Scripts/activate
       ```
     - **Linux/macOS Terminal:**
       ```bash
-      source venv/bin/activate
+      sourceData venv/bin/activate
       ```
 
 4. **Install the required packages:**
