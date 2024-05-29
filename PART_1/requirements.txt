@@ -4,3 +4,6 @@ numpy
 scikit-learn
 opencv-python
 pillow
+scikit-image
+seaborn
+matplotlib 
