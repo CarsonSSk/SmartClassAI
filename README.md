@@ -40,7 +40,9 @@ In this part, we focus on:
       ```bash
       sourceData venv/bin/activate
       ```
-
+    - **If ```cannot be loaded because running scripts is disabled on this system```:**
+      Try ```Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser```
+      
 4. **Install the required packages:**
     ```bash
     pip install -r requirements.txt
