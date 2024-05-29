@@ -20639,3 +20639,15 @@ BM34NEHR.JPG,data\dataSources\kdef\engaged\BM34NEHR.JPG,engaged,KDEF,BM34NEHR_en
 BM34NES.JPG,data\dataSources\kdef\engaged\BM34NES.JPG,engaged,KDEF,BM34NES_engaged_KDEF
 BM35AFHR.JPG,data\dataSources\kdef\engaged\BM35AFHR.JPG,engaged,KDEF,BM35AFHR_engaged_KDEF
 BM35AFS.JPG,data\dataSources\kdef\engaged\BM35AFS.JPG,engaged,KDEF,BM35AFS_engaged_KDEF
+CSK_Happy.jpg,data\dataSources\teammates\happy\CSK_Happy.jpg,happy,TEAMMATES,CSK_Happy_happy_TEAMMATES
+HYL-happy.jpg,data\dataSources\teammates\happy\HYL-happy.jpg,happy,TEAMMATES,HYL-happy_happy_TEAMMATES
+QHZ-happy.jpg,data\dataSources\teammates\happy\QHZ-happy.jpg,happy,TEAMMATES,QHZ-happy_happy_TEAMMATES
+CSK_Angry.jpg,data\dataSources\teammates\angry\CSK_Angry.jpg,angry,TEAMMATES,CSK_Angry_angry_TEAMMATES
+HYL-angry.jpg,data\dataSources\teammates\angry\HYL-angry.jpg,angry,TEAMMATES,HYL-angry_angry_TEAMMATES
+QHZ-angry.jpg,data\dataSources\teammates\angry\QHZ-angry.jpg,angry,TEAMMATES,QHZ-angry_angry_TEAMMATES
+CSK_Neutral.jpg,data\dataSources\teammates\neutral\CSK_Neutral.jpg,neutral,TEAMMATES,CSK_Neutral_neutral_TEAMMATES
+HYL-neutral.jpg,data\dataSources\teammates\neutral\HYL-neutral.jpg,neutral,TEAMMATES,HYL-neutral_neutral_TEAMMATES
+QHZ-neutral.jpg,data\dataSources\teammates\neutral\QHZ-neutral.jpg,neutral,TEAMMATES,QHZ-neutral_neutral_TEAMMATES
+CSK_Engaged.jpg,data\dataSources\teammates\engaged\CSK_Engaged.jpg,engaged,TEAMMATES,CSK_Engaged_engaged_TEAMMATES
+HYL-engaged.jpg,data\dataSources\teammates\engaged\HYL-engaged.jpg,engaged,TEAMMATES,HYL-engaged_engaged_TEAMMATES
+QHZ-engaged.jpg,data\dataSources\teammates\engaged\QHZ-engaged.jpg,engaged,TEAMMATES,QHZ-engaged_engaged_TEAMMATES
