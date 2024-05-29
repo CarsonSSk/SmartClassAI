@@ -98,7 +98,7 @@ class DataCleaning:
 
         print(f"Data cleaning for {subset} complete.")
 
-#Parameters at runtime
+# Usage example
 if __name__ == "__main__":
     test_csv = 'PART_1/data/test_dataset.csv'
     train_csv = 'PART_1/data/train_dataset.csv'
