@@ -6,9 +6,8 @@ import numpy as np
 import csv
 
 class DataCleaning:
-    def __init__(self, test_csv, train_csv, output_dir, root_dir='PART_1', img_size=(48, 48), log_file='PART_1/data/cleaned_image_data.csv'):
-        self.test_csv = test_csv
-        self.train_csv = train_csv
+    def __init__(self, image_data_csv, output_dir, root_dir='PART_1', img_size=(48, 48), log_file='PART_1/data/cleaned_image_data.csv'):
+        self.image_data_csv = image_data_csv
         self.output_dir = output_dir
         self.root_dir = root_dir
         self.img_size = img_size
@@ -21,10 +20,9 @@ class DataCleaning:
         self.setup_log_file()
 
     def setup_output_directories(self):
-        for subset in ['test', 'train']:
-            for label in ['happy', 'angry', 'neutral', 'engaged']:
-                path = os.path.join(self.output_dir, subset, label)
-                os.makedirs(path, exist_ok=True)
+        for label in ['happy', 'angry', 'neutral', 'engaged']:
+            path = os.path.join(self.output_dir, label)
+            os.makedirs(path, exist_ok=True)
 
     def setup_log_file(self):
         if not os.path.exists(self.log_file):
@@ -33,7 +31,7 @@ class DataCleaning:
                 writer.writerow(['Image Name', 'Path', 'Label', 'Source', 'CompositeName'])
 
     def read_csv(self, csv_file):
-        return pd.read_csv(csv_file, header=None, names=['Path', 'CompositeName', 'Label', 'ImageName', 'Source'])
+        return pd.read_csv(csv_file, header=0, names=['ImageName', 'Path', 'Label', 'Source', 'CompositeName'])
 
     def process_image(self, img_path):
         # Prepend root directory to the image path
@@ -62,9 +60,22 @@ class DataCleaning:
         
         # Apply histogram equalization for contrast enhancement
         img_equalized = cv2.equalizeHist(img_resized)
+
+
+        # Apply Gaussian Blur for noise reduction
+        # img_blurred = cv2.GaussianBlur(img_resized, (5, 5), 0)
+
+        # Apply Median Blur for noise reduction
+        # img_blurred = cv2.medianBlur(img_resized, 5)
+
+        # Apply Bilateral Filter for noise reduction while preserving edges
+        # img_filtered = cv2.bilateralFilter(img_resized, d=9, sigmaColor=75, sigmaSpace=75)
         
         # Normalize pixel values to [0, 1]
         img_normalized = img_equalized / 255.0
+
+        # Apply binarization
+        # _, img_binarized = cv2.threshold(img_normalized, 0.5, 1.0, cv2.THRESH_BINARY)
         
         return img_normalized
 
@@ -79,7 +90,7 @@ class DataCleaning:
             writer = csv.writer(file)
             writer.writerow([row['ImageName'], save_path, row['Label'], row['Source'], row['CompositeName']])
 
-    def clean_data(self, csv_file, subset):
+    def clean_data(self, csv_file):
         data = self.read_csv(csv_file)
 
         for index, row in data.iterrows():
@@ -92,7 +103,7 @@ class DataCleaning:
                 continue
 
             # Create destination path
-            save_dir = os.path.join(self.output_dir, subset, label)
+            save_dir = os.path.join(self.output_dir, label)
             save_path = os.path.join(save_dir, row['ImageName'])
             
             # Save the cleaned image
@@ -101,16 +112,14 @@ class DataCleaning:
             # Log the image data
             self.log_image_data(row, save_path)
 
-        print(f"Data cleaning for {subset} complete.")
+        print(f"Data cleaning complete.")
 
-# Runtime values
+# Runtime properties
 if __name__ == "__main__":
-    test_csv = 'PART_1/data/test_dataset.csv'
-    train_csv = 'PART_1/data/train_dataset.csv'
+    image_data_csv = 'PART_1/data/image_data.csv'
     output_dir = 'PART_1/data/cleanedData'
     log_file = 'PART_1/data/cleaned_image_data.csv'
     
-    cleaner = DataCleaning(test_csv, train_csv, output_dir, log_file=log_file)
+    cleaner = DataCleaning(image_data_csv, output_dir, log_file=log_file)
     
-    cleaner.clean_data(test_csv, 'test')
-    cleaner.clean_data(train_csv, 'train')
+    cleaner.clean_data(image_data_csv)
