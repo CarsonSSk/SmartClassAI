@@ -48,21 +48,5 @@ In this part, we focus on:
     pip install -r requirements.txt
     ```
 
-### 2. Download and Prepare the Dataset
-1. **Run the `data_prep.py` script to download, extract, and organize the dataset:**
-    ```bash
-    python data_prep.py
-    ```
-
-### 3. Script Explanation
-The `data_prep.py` script performs the following steps:
-- Ensures the `data/fer2013` directory exists.
-- Downloads the FER-2013 dataset using the Kaggle API with the `--force` option.
-- Extracts the dataset if not already extracted.
-- Defines the required classes (`happy`, `angry`, `neutral`) and corresponding subdirectories.
-- Creates directories for organized data.
-- Removes existing directories if they exist.
-- Copies images for each subset (`train`, `test`) and each emotion to the organized directory, ensuring that exactly 400 images per class are used for training and 100 images per class for testing.
-- Removes the original data directories to save space.
 
 
