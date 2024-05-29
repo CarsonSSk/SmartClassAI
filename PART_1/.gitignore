@@ -5,3 +5,4 @@ __pycache__/
 *.pyd
 data/fer2013/fer2013.zip
 data/fer2013/organized/
+data/augmentation/

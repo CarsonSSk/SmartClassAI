@@ -1,12 +1,18 @@
 import os
 import csv
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from PIL import Image
+import numpy as np
 
 #Data importation section
 base_dir = "Dataset"
 train_dir = os.path.join(base_dir, 'train')
 test_dir = os.path.join(base_dir, 'test')
 
-# Function to get image paths and labels, creates data array in the format (Path string, emotion label string)
+#Function to get image paths and labels, creates data array in the format (Path string, emotion label string)
 def get_image_paths_and_labels(base_folder):
     data = []
     for label in os.listdir(base_folder):
@@ -19,12 +25,12 @@ def get_image_paths_and_labels(base_folder):
     #print(data)
     return data
 
-# Get the train and test data + Combination of all data
+#Get the train and test data + Combination of all data
 train_data = get_image_paths_and_labels(train_dir)
 test_data = get_image_paths_and_labels(test_dir)
 all_data = train_data + test_data
 
-# Write data array to CSV
+#Write data array to CSV
 csv_file = 'image_paths_and_labels.csv'
 with open(csv_file, mode='w', newline='') as file:
     writer = csv.writer(file)
@@ -34,10 +40,6 @@ with open(csv_file, mode='w', newline='') as file:
 print(f'CSV file "{csv_file}" has been created.')
 
 #Data visualization section
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 #Load dataset from the existing CSV file (all data)
 data = pd.read_csv('image_paths_and_labels.csv')
@@ -54,26 +56,23 @@ def plot_class_distribution(data):
 #Run the plot_class_distribution function on all data
 plot_class_distribution(data)
 
-from PIL import Image
-import numpy as np
-
 #Function to plot n sample images of the class_name label within data, in a 3 by 5 grid with pixel intensity distribution (grayscale)
 def plot_sample_images(data, class_name, image_column='file_path', n_samples=15):
 
     sample_data = data[data['label'] == class_name].sample(n_samples)
-    sample_data = sample_data.sample(frac=1)  # Shuffle the samples
+    sample_data = sample_data.sample(frac=1)  #Shuffle the samples
 
     plt.figure(figsize=(15, 10))
 
     for i, (index, row) in enumerate(sample_data.iterrows()):
-        img = Image.open(row[image_column]).convert('L')  # Converts to grayscale, Change if we want to visualize RGB images
+        img = Image.open(row[image_column]).convert('L')  #Converts to grayscale, Change if we want to visualize RGB images
 
-        # Plot image
+        #Plot image
         plt.subplot(3, 10, i*2 + 1)
-        plt.imshow(img, cmap='gray', aspect='equal')  # Display as grayscale
+        plt.imshow(img, cmap='gray', aspect='equal')  #Display as grayscale
         plt.axis('off')
 
-        # Plot histogram
+        #Plot histogram
         plt.subplot(3, 10, i*2 + 2)
         plt.hist(np.array(img).flatten(), bins=256, range=(0, 256), density=True, color='gray', alpha=0.75)
         plt.xlabel('Pixel Intensity')
@@ -84,7 +83,7 @@ def plot_sample_images(data, class_name, image_column='file_path', n_samples=15)
     plt.tight_layout()
     plt.show()
 
-# Run the plot_sample_images function with a specific class_name
+#Run the plot_sample_images function with a specific class_name
 plot_sample_images(data, 'angry', image_column='file_path')
 #plot_sample_images(data, 'happy', image_column='file_path')
 #plot_sample_images(data, 'neutral', image_column='file_path')
@@ -93,25 +92,25 @@ plot_sample_images(data, 'angry', image_column='file_path')
 #Function to plot n sample images within all the data, in a 3 by 5 grid with pixel intensity distribution (grayscale)
 def plot_random_images(data, image_column='file_path', n_samples=15):
 
-    # Shuffle the data and sample n_samples
+    #Shuffle the data and sample n_samples
     shuffled_data = data.sample(n=n_samples).reset_index(drop=True)
 
     plt.figure(figsize=(15, 10))
 
     for i, (_, row) in enumerate(shuffled_data.iterrows()):
-        img = Image.open(row[image_column]).convert('L')  # Convert to grayscale
+        img = Image.open(row[image_column]).convert('L')  #Convert to grayscale
 
-        # Add label as annotation
+        #Add label as annotation
         plt.subplot(3, 10, i * 2 + 1)
         plt.text(0.5, -0.15, row['label'], fontsize=12, ha='center', va='center', transform=plt.gca().transAxes)
 
 
-        # Plot image
+        #Plot image
         plt.subplot(3, 10, i*2 + 1)
-        plt.imshow(img, cmap='gray', aspect='equal')  # Display as grayscale, change if RGB later
+        plt.imshow(img, cmap='gray', aspect='equal')  #Display as grayscale, change if RGB later
         plt.axis('off')
 
-        # Plot histogram
+        #Plot histogram
         plt.subplot(3, 10, i*2 + 2)
         plt.hist(np.array(img).flatten(), bins=256, range=(0, 256), density=True, color='gray', alpha=0.75)
         plt.xlabel('Pixel Intensity')
@@ -161,7 +160,7 @@ def plot_rgb_pixel_intensity_distribution(data, class_name, image_column='file_p
         img = Image.open(row[image_column])
         img_array = np.array(img)
 
-        # Ensure image is in RGB mode
+        #Ensure image is in RGB mode
         if img_array.ndim == 3 and img_array.shape[2] == 3:
             red_intensities.extend(img_array[:, :, 0].flatten())
             green_intensities.extend(img_array[:, :, 1].flatten())
