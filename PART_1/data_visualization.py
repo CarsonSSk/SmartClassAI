@@ -12,7 +12,8 @@ import numpy as np
 #train_dir = os.path.join(base_dir, 'train')
 #test_dir = os.path.join(base_dir, 'test')
 base_dir="data"
-data=pd.read_csv(os.path.join(base_dir,"image_data.csv"))
+#data=pd.read_csv(os.path.join(base_dir,"image_data.csv"))
+data=pd.read_csv(os.path.join(base_dir,"cleaned_image_data.csv"))
 shuffled_data = pd.read_csv(os.path.join(base_dir, "image_data_shuffled.csv"))
 
 
@@ -73,36 +74,38 @@ def plot_class_distribution(data):
 
 #Function to plot n sample images of the class_name label within data, in a 3 by 5 grid with pixel intensity distribution (grayscale)
 def plot_sample_images(data, class_name, image_column='Path', n_samples=15):
-
     sample_data = data[data['Label'] == class_name].sample(n_samples)
-    sample_data = sample_data.sample(frac=1)  #Shuffle the samples
+    sample_data = sample_data.sample(frac=1)  # Shuffle the samples
 
-    plt.figure(figsize=(15, 10))
+    plt.figure(figsize=(20, 15))
 
     for i, (index, row) in enumerate(sample_data.iterrows()):
-        img = Image.open(row[image_column]).convert('L')  #Converts to grayscale, Change if we want to visualize RGB images
+        img = Image.open(row[image_column])  # Convert to grayscale
 
-        #Plot image
-        plt.subplot(3, 10, i*2 + 1)
-        plt.imshow(img, cmap='gray', aspect='equal')  #Display as grayscale
+        # Plot image
+        plt.subplot(5, 6, i * 2 + 1)
+        plt.imshow(img, cmap='gray', aspect='equal')
         plt.axis('off')
 
-        #Plot histogram
-        plt.subplot(3, 10, i*2 + 2)
+        # Plot histogram
+        plt.subplot(5, 6, i * 2 + 2)
         plt.hist(np.array(img).flatten(), bins=256, range=(0, 256), density=True, color='gray', alpha=0.75)
         plt.xlabel('Pixel Intensity')
         plt.ylabel('Frequency')
         plt.gca().set_aspect('auto')
+        plt.xlim(left=0, right=255)
 
     plt.suptitle(f'Sample Images - {class_name}', size=16)
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    plt.subplots_adjust(hspace=0.5, bottom=0.06)
     plt.show()
 
+
 #Run the plot_sample_images function with a specific class_name
-#plot_sample_images(data, 'angry', image_column='Path')
-#plot_sample_images(data, 'happy', image_column='Path')
-#plot_sample_images(data, 'neutral', image_column='Path')
-#plot_sample_images(data, 'engaged', image_column='Path')
+plot_sample_images(data, 'angry', image_column='Path')
+plot_sample_images(data, 'happy', image_column='Path')
+plot_sample_images(data, 'neutral', image_column='Path')
+plot_sample_images(data, 'engaged', image_column='Path')
 
 #Function to plot n sample images within all the data, in a 3 by 5 grid with pixel intensity distribution (grayscale)
 def plot_random_images(data, image_column='Path', n_samples=15):
@@ -127,6 +130,7 @@ def plot_random_images(data, image_column='Path', n_samples=15):
         plt.hist(np.array(img).flatten(), bins=256, range=(0, 256), density=True, color='gray', alpha=0.75)
         plt.xlabel('Pixel Intensity')
         plt.ylabel('Frequency')
+        plt.xlim(left=0, right=255)
         plt.gca().set_aspect('auto')
 
     plt.suptitle('Sample Images - All Data', size=16)
@@ -202,7 +206,7 @@ def plot_rgb_pixel_intensity_distribution(data, class_name, image_column='Path')
 #plot_rgb_pixel_intensity_distribution(data, 'angry', image_column='Path')
 #plot_rgb_pixel_intensity_distribution(data, 'happy', image_column='Path')
 #plot_rgb_pixel_intensity_distribution(data, 'neutral', image_column='Path')
-plot_rgb_pixel_intensity_distribution(data, 'engaged', image_column='Path')
+#plot_rgb_pixel_intensity_distribution(data, 'engaged', image_column='Path')
 
 
 

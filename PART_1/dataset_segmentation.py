@@ -14,6 +14,7 @@ labels = ['happy', 'angry', 'neutral', 'engaged']
 csv_file = os.path.join(base_dir, 'image_data.csv')
 csv_segmentation_file = os.path.join(base_dir, 'image_data_segmentation.csv')
 csv_shuffled_file = os.path.join(base_dir, 'image_data_shuffled.csv')
+csv_cleaned_data = os.path.join(base_dir, 'cleaned_image_data.csv')
 
 #Function to generate the composite name
 def generate_composite_name(image_name, label, source):
@@ -58,7 +59,7 @@ validation_dataset = pd.DataFrame(columns=['Path', 'CompositeName', 'Label'])
 test_dataset = pd.DataFrame(columns=['Path', 'CompositeName', 'Label'])
 
 #Shuffle the data
-data_df = pd.read_csv(csv_file)
+data_df = pd.read_csv(csv_cleaned_data)
 shuffled_data = data_df.sample(frac=1, random_state=seed)
 shuffled_data.to_csv(csv_shuffled_file, index=False)
 

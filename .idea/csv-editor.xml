@@ -17,14 +17,14 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\PART_1\data\image_data.csv">
+        <entry key="\PART_1\data\cleaned_image_data.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\PART_1\data\image_data_segmentation.csv">
+        <entry key="\PART_1\data\image_data.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
