@@ -10,7 +10,7 @@ In this part, we focus on:
 - Performing exploratory data analysis (EDA)
 - Cleaning and labeling the dataset
 
-## How to Use
+## Start up dependencies 
 
 ### 1. Set Up the Environment Using `venv`
 1. **Navigate to the project directory:**
