@@ -3,13 +3,6 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="\PART_1\augmented_image_paths_and_labels.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="\PART_1\data\augmented_images.csv">
           <value>
             <Attribute>
@@ -53,13 +46,6 @@
           </value>
         </entry>
         <entry key="\PART_1\data\validation_dataset.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\PART_1\image_shuffled_data.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
