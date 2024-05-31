@@ -1,16 +1,14 @@
+#Data augmentation script. As of May 31st, the script is functional but has not been run for the presented data, and may be modified for parts 2 and 3 for the project.
 import os
-import csv
 from PIL import Image, ImageEnhance
 import random
 import pandas as pd
-import numpy as np
 import glob
 
 #Data importation section
 base_dir = "data"
 train_dir = os.path.join(base_dir, 'train')
 test_dir = os.path.join(base_dir, 'test')
-
 train_data = pd.read_csv(os.path.join(base_dir, 'train_dataset.csv'))
 
 #Ensure the output directory exists
@@ -24,20 +22,10 @@ for file in glob.glob(os.path.join(augmented_dir,"*")):
 #Augmentation parameters
 augmentation_factor = 2 #Number of augmented images to generate per source image
 
-#Function for augmenting images
+#Function to augment images
 def augment_image(image_path, output_folder, combined_train_data, num_augmented_images=augmentation_factor, target_size=(48, 48)):
     img = Image.open(image_path)
     img_extension = os.path.splitext(image_path)[1]  #Extract file extension
-
-    #Resize image
-    img = img.resize(target_size)
-
-    #Convert image to grayscale
-    img = img.convert('L')
-
-    #Normalize pixel values to [0, 1]
-    img_array = np.array(img) / 255.0
-    img = Image.fromarray(np.uint8(img_array * 255))
 
     #Add original image to DataFrame
     extracted_label = train_data[train_data['Path'] == image_path]['Label'].values[0]
@@ -46,7 +34,7 @@ def augment_image(image_path, output_folder, combined_train_data, num_augmented_
         augmented_data = {'Path': image_path, 'Label': label, 'Name': os.path.basename(image_path)}
         combined_train_data.append(augmented_data)
 
-        augmentations = [
+        augmentations = [ # List of desired augmentation methods (image manipulation)
             ("rot", lambda img, degree: img.rotate(degree)),
             ("flip", lambda img, degree: img.transpose(Image.FLIP_LEFT_RIGHT)),
             ("col", lambda img, degree: ImageEnhance.Color(img).enhance(degree)),
@@ -57,7 +45,7 @@ def augment_image(image_path, output_folder, combined_train_data, num_augmented_
         ]
 
         combinations = []
-        while len(combinations) < num_augmented_images:
+        while len(combinations) < num_augmented_images: #Generate random combinations of the possible augmentation methods
             combo = random.sample(augmentations, random.randint(1, len(augmentations)))
             combo_names = [name for name, _ in combo]
             if combo_names not in combinations:
@@ -71,7 +59,7 @@ def augment_image(image_path, output_folder, combined_train_data, num_augmented_
                 if name == "rot":
                     degree = random.randint(-30, 30)
                 elif name == "flip":
-                    degree = 0  #Flip does not need a degree
+                    degree = 0
                 else:
                     degree = round(random.uniform(0.5, 1.5), 2)
 
