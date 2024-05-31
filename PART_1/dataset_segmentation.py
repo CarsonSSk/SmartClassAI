@@ -1,8 +1,6 @@
 import os
 import csv
-import random
 import pandas as pd
-from sklearn.model_selection import train_test_split
 
 #Define base directory and subdirectories
 base_dir = "data"
@@ -14,6 +12,19 @@ labels = ['happy', 'angry', 'neutral', 'engaged']
 csv_file = os.path.join(base_dir, 'image_data.csv')
 csv_segmentation_file = os.path.join(base_dir, 'image_data_segmentation.csv')
 csv_shuffled_file = os.path.join(base_dir, 'image_data_shuffled.csv')
+csv_cleaned_data = os.path.join(base_dir, 'cleaned_image_data.csv')
+
+#Parameters for data segmentation
+subset_counts = {
+    'happy': 500, #Define number of images from each class to be used in all sets
+    'angry': 500,
+    'neutral': 500,
+    'engaged': 500
+}
+train_percent = 0.6 #Define the relative proportions of images in each set
+validation_percent = 0.2
+test_percent = 0.2
+seed = 2024 #Seed for the randomization
 
 #Function to generate the composite name
 def generate_composite_name(image_name, label, source):
@@ -40,25 +51,13 @@ with open(csv_file, mode='w', newline='') as file:
 
 print(f'CSV file "{csv_file}" has been created with the following columns: Image Name, Path, Label, Source, CompositeName.')
 
-#Parameters for data segmentation
-subset_counts = {
-    'happy': 500,
-    'angry': 500,
-    'neutral': 500,
-    'engaged': 500
-}
-train_percent = 0.6
-validation_percent = 0.2
-test_percent = 0.2
-seed = 2024
-
 #Create empty datasets
 train_dataset = pd.DataFrame(columns=['Path', 'CompositeName', 'Label'])
 validation_dataset = pd.DataFrame(columns=['Path', 'CompositeName', 'Label'])
 test_dataset = pd.DataFrame(columns=['Path', 'CompositeName', 'Label'])
 
-#Shuffle the data
-data_df = pd.read_csv(csv_file)
+#Shuffle the data using seed
+data_df = pd.read_csv(csv_cleaned_data)
 shuffled_data = data_df.sample(frac=1, random_state=seed)
 shuffled_data.to_csv(csv_shuffled_file, index=False)
 
@@ -91,6 +90,7 @@ total_counts = {
 #Calculate total counts
 total_count = sum(total_counts.values())
 
+#Print the number of images from each class in each set
 print("Distribution of images in each set:")
 for label in labels:
     train_count = len(train_dataset[train_dataset['Label'] == label])
