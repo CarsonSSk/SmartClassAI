@@ -3,6 +3,7 @@
 Welcome to the SmartClass A.I.ssistant project! This project is part of COMP 472 Artificial Intelligence (Summer 2024) and aims to develop a deep learning Convolutional Neural Network (CNN) using PyTorch to analyze images of students in a classroom or online meeting setting and categorize them into distinct states or activities.
 
 ## Team composition
+
 Hao Yi Liu
 Carson Senthilkumar
 Qing Han Zhang
@@ -12,13 +13,17 @@ Supervised by teaching assistant Mr. Amin Karimi
 ## Project Overview
 
 ### PART 1: Data Collection, Cleaning, Labeling & Preliminary Analysis
+
 In this part, we focus on:
+
 - Collecting suitable training data
 - Cleaning and labeling the dataset
 - Visualizing the dataset to improve the cleaning methods and diagnose any issues with the dataset
 
 ## Table of Contents
+
 Part 1: Contains all folders and .py scripts.
+
 - data: Folder that contains all data images and .csv files
   - dataSources: Folder that contains the original images split into their sources and classes.
     - fer2013: Images from the FER-2013 dataset.
@@ -43,9 +48,52 @@ Part 1: Contains all folders and .py scripts.
 - data_augmentation.py: Generate augmented images from the training dataset (created by dataset_segmentation.py), using augmentation methods in a random combination (flipping, rotation, color, brightness, contrast, sharpness enhancements).
 - README.md: Read me file.
 
+## Start up dependencies
+
+### 1. Set Up the Environment Using `venv`
+
+1. **Navigate to the project directory:**
+
+   ```bash
+   ex.: cd ~/Desktop/COMP472-Project/PART_1
+   ```
+
+2. **Create a virtual environment:**
+
+   ```bash
+   python -m venv venv
+   ```
+
+3. **Activate the virtual environment:**
+   - **Windows Command Prompt:**
+     ```bash
+     venv\Scripts\activate
+     ```
+   - **Windows PowerShell:**
+     ```bash
+     .\venv\Scripts\Activate
+     ```
+   - **Git Bash or WSL:**
+     ```bash
+     sourceData venv/Scripts/activate
+     ```
+   - **Linux/macOS Terminal:**
+     ```bash
+     sourceData venv/bin/activate
+     ```
+   - **If `cannot be loaded because running scripts is disabled on this system`:**
+     Try `Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser`
+4. **Install the required packages:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
 ## Steps to execute code
+
 ### Part 1
+
 a) Data cleaning:
+
 1. First, make sure PART_1/data/dataSources contains images in their respective folders. These will be the ones to be cleaned into the PART_1/data/cleanedData folder.
 2. Open data_cleaning.py.
 3. In the process_image function, locate the various cleaning methods implemented. Comment in/out any method that you wish to apply or not on the original images (Grayscaling, Resizing, Histogram equalization, CLAHE, Blurring).
@@ -53,6 +101,7 @@ a) Data cleaning:
 5. Cleaned images will now be in the cleanedData folder, and cleaned_image_data.csv will contain the corresponding data.
 
 b) Data visualization (with Matplotlib):
+
 1. First, make sure the PART_1/data/cleanedData folder contains images (the script has been configured to visualize post-cleaning data).
 2. Open data_visualization.py.
 3. At the end of the script, comment in/out any execution of the plot_class_distribution, plot_sample_images, plot_pixel_intensity_distribution functions that you wish to run or not.
