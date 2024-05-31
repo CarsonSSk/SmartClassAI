@@ -4,9 +4,9 @@ Welcome to the SmartClass A.I.ssistant project! This project is part of COMP 472
 
 ## Team composition
 
-Hao Yi Liu
-Carson Senthilkumar
-Qing Han Zhang
+- Hao Yi Liu
+- Carson Senthilkumar
+- Qing Han Zhang
 
 Supervised by teaching assistant Mr. Amin Karimi
 
