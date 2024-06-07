@@ -1,6 +1,8 @@
 import pandas as pd
-from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score, confusion_matrix
 import os
+import matplotlib.pyplot as plt
+import numpy as np
 
 base_dir="models"
 model_name="model_2024-06-06_02-31-02"
@@ -31,3 +33,33 @@ print(f"Macro-averaged Precision: {macro_precision:.4f}")
 print(f"Macro-averaged Recall: {macro_recall:.4f}")
 print(f"Macro-averaged F1 Score: {macro_f1:.4f}")
 print(f"Accuracy: {accuracy:.4f}")
+
+# Confusion matrix
+# Generate confusion matrix
+conf_matrix = confusion_matrix(results_df['Correct Label'], results_df['Predicted Label'])
+
+# Define class names
+class_names = ['happy', 'angry', 'neutral', 'engaged']
+
+# Plot confusion matrix using matplotlib
+fig, ax = plt.subplots(figsize=(8, 6))
+cax = ax.matshow(conf_matrix, cmap = "Blues")
+plt.colorbar(cax)
+
+# Set up axes
+ax.set_xticks(np.arange(len(class_names)))
+ax.set_yticks(np.arange(len(class_names)))
+
+# Label axes
+ax.set_xticklabels(class_names)
+ax.set_yticklabels(class_names)
+
+# Label each cell with its value
+for i in range(len(class_names)):
+    for j in range(len(class_names)):
+        ax.text(j, i, str(conf_matrix[i, j]), ha='center', va='center', color='black')
+
+plt.xlabel('Predicted Label')
+plt.ylabel('Correct Label')
+plt.title('Confusion Matrix')
+plt.show()
