@@ -4,62 +4,83 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-base_dir="models"
-model_name="model_2024-06-06_02-31-02"
-# Load the results CSV file
-results_df = pd.read_csv(os.path.join(os.path.join(base_dir, model_name),"results.csv"))
-
-# Convert the labels to numerical values
+base_dir = "models"
 label_mapping = {'happy': 0, 'angry': 1, 'neutral': 2, 'engaged': 3}
-results_df['Correct Label'] = results_df['Correct Label'].map(label_mapping)
-results_df['Predicted Label'] = results_df['Predicted Label'].map(label_mapping)
-
-# Calculate evaluation metrics
-micro_precision = precision_score(results_df['Correct Label'], results_df['Predicted Label'], average='micro')
-micro_recall = recall_score(results_df['Correct Label'], results_df['Predicted Label'], average='micro')
-micro_f1 = f1_score(results_df['Correct Label'], results_df['Predicted Label'], average='micro')
-
-macro_precision = precision_score(results_df['Correct Label'], results_df['Predicted Label'], average='macro')
-macro_recall = recall_score(results_df['Correct Label'], results_df['Predicted Label'], average='macro')
-macro_f1 = f1_score(results_df['Correct Label'], results_df['Predicted Label'], average='macro')
-
-accuracy = accuracy_score(results_df['Correct Label'], results_df['Predicted Label'])
-
-# Print the evaluation metrics
-print(f"Micro-averaged Precision: {micro_precision:.4f}")
-print(f"Micro-averaged Recall: {micro_recall:.4f}")
-print(f"Micro-averaged F1 Score: {micro_f1:.4f}")
-print(f"Macro-averaged Precision: {macro_precision:.4f}")
-print(f"Macro-averaged Recall: {macro_recall:.4f}")
-print(f"Macro-averaged F1 Score: {macro_f1:.4f}")
-print(f"Accuracy: {accuracy:.4f}")
-
-# Confusion matrix
-# Generate confusion matrix
-conf_matrix = confusion_matrix(results_df['Correct Label'], results_df['Predicted Label'])
-
-# Define class names
 class_names = ['happy', 'angry', 'neutral', 'engaged']
 
-# Plot confusion matrix using matplotlib
-fig, ax = plt.subplots(figsize=(8, 6))
-cax = ax.matshow(conf_matrix, cmap = "Blues")
-plt.colorbar(cax)
+def load_results(model_dir):
+    results_df = pd.read_csv(os.path.join(base_dir, model_dir, "results.csv"))
+    results_df['Correct Label'] = results_df['Correct Label'].map(label_mapping)
+    results_df['Predicted Label'] = results_df['Predicted Label'].map(label_mapping)
+    return results_df
 
-# Set up axes
-ax.set_xticks(np.arange(len(class_names)))
-ax.set_yticks(np.arange(len(class_names)))
+def evaluate_and_get_metrics(results_df):
+    accuracy = accuracy_score(results_df['Correct Label'], results_df['Predicted Label'])
+    macro_precision = precision_score(results_df['Correct Label'], results_df['Predicted Label'], average='macro')
+    macro_recall = recall_score(results_df['Correct Label'], results_df['Predicted Label'], average='macro')
+    macro_f1 = f1_score(results_df['Correct Label'], results_df['Predicted Label'], average='macro')
+    micro_precision = precision_score(results_df['Correct Label'], results_df['Predicted Label'], average='micro')
+    micro_recall = recall_score(results_df['Correct Label'], results_df['Predicted Label'], average='micro')
+    micro_f1 = f1_score(results_df['Correct Label'], results_df['Predicted Label'], average='micro')
+    return accuracy, macro_precision, macro_recall, macro_f1, micro_precision, micro_recall, micro_f1
 
-# Label axes
-ax.set_xticklabels(class_names)
-ax.set_yticklabels(class_names)
+def print_evaluation_results(model_name, metrics):
+    accuracy, macro_precision, macro_recall, macro_f1, micro_precision, micro_recall, micro_f1 = metrics
+    print(f"{model_name} - Accuracy: {accuracy:.4f}, Macro P: {macro_precision:.4f}, Macro R: {macro_recall:.4f}, Macro F: {macro_f1:.4f}, Micro P: {micro_precision:.4f}, Micro R: {micro_recall:.4f}, Micro F: {micro_f1:.4f}")
 
-# Label each cell with its value
-for i in range(len(class_names)):
-    for j in range(len(class_names)):
-        ax.text(j, i, str(conf_matrix[i, j]), ha='center', va='center', color='black')
+def plot_confusion_matrix(results_df, model_name):
+    conf_matrix = confusion_matrix(results_df['Correct Label'], results_df['Predicted Label'])
+    fig, ax = plt.subplots(figsize=(8, 6))
+    cax = ax.matshow(conf_matrix, cmap="Blues")
+    plt.colorbar(cax)
 
-plt.xlabel('Predicted Label')
-plt.ylabel('Correct Label')
-plt.title('Confusion Matrix')
-plt.show()
+    ax.set_xticks(np.arange(len(class_names)))
+    ax.set_yticks(np.arange(len(class_names)))
+    ax.set_xticklabels(class_names)
+    ax.set_yticklabels(class_names)
+
+    for i in range(len(class_names)):
+        for j in range(len(class_names)):
+            ax.text(j, i, str(conf_matrix[i, j]), ha='center', va='center', color='black')
+
+    plt.xlabel('Predicted Label')
+    plt.ylabel('Correct Label')
+    plt.title(f'Confusion Matrix - {model_name}')
+    plt.show()
+
+# Evaluate and print results for a given model
+def evaluate_model(model_dir):
+    results_df = load_results(model_dir)
+    metrics = evaluate_and_get_metrics(results_df)
+    print_evaluation_results(model_dir, metrics)
+    plot_confusion_matrix(results_df, model_dir)
+
+# Main model evaluation
+evaluate_model("model_2024-06-07_16-14-30")
+
+# Variant models evaluation
+evaluate_model("variant1_model_2024-06-07_16-14-32")
+evaluate_model("variant2_model_2024-06-07_16-14-50")
+
+# Summarize the findings in a table
+def summarize_results():
+    main_metrics = evaluate_and_get_metrics(load_results("model_2024-06-07_16-14-30"))
+    variant1_metrics = evaluate_and_get_metrics(load_results("variant1_model_2024-06-07_16-14-32"))
+    variant2_metrics = evaluate_and_get_metrics(load_results("variant2_model_2024-06-07_16-14-50"))
+
+    summary_table = pd.DataFrame({
+        'Model': ['Main Model', 'Variant 1', 'Variant 2'],
+        'Accuracy': [main_metrics[0], variant1_metrics[0], variant2_metrics[0]],
+        'Macro Precision': [main_metrics[1], variant1_metrics[1], variant2_metrics[1]],
+        'Macro Recall': [main_metrics[2], variant1_metrics[2], variant2_metrics[2]],
+        'Macro F1': [main_metrics[3], variant1_metrics[3], variant2_metrics[3]],
+        'Micro Precision': [main_metrics[4], variant1_metrics[4], variant2_metrics[4]],
+        'Micro Recall': [main_metrics[5], variant1_metrics[5], variant2_metrics[5]],
+        'Micro F1': [main_metrics[6], variant1_metrics[6], variant2_metrics[6]],
+    })
+
+    print(summary_table)
+    summary_table.to_csv('model_evaluation_summary.csv', index=False)
+
+# Summarize results in a table
+summarize_results()

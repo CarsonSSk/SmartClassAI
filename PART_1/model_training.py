@@ -108,65 +108,151 @@ class MultiLayerFCNet(nn.Module):
         # Apply log_softmax to get log probabilities for multi-class classification
         return F.log_softmax(x, dim=1)
 
+#Variant 1: Vary the Number of Convolutional Layers    
+class CNNModelVariant1(nn.Module):
+    def __init__(self):
+        super(CNNModelVariant1, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)  # Additional layer
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
+        self.fc1 = nn.Linear(128 * 6 * 6, 128)
+        self.fc2 = nn.Linear(128, 4)
+        self.dropout = nn.Dropout(0.25)
+    
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = self.pool(F.relu(self.conv3(x)))
+        x = x.view(-1, 128 * 6 * 6)
+        x = F.relu(self.fc1(x))
+        x = self.dropout(x)
+        x = self.fc2(x)
+        return x
+
+#Variant 2: Experiment with Different Kernel Sizes
+class CNNModelVariant2(nn.Module):
+    def __init__(self):
+        super(CNNModelVariant2, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)  # Larger kernel size
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=5, padding=2)
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
+        self.fc1 = nn.Linear(64 * 12 * 12, 128)
+        self.fc2 = nn.Linear(128, 4)
+        self.dropout = nn.Dropout(0.25)
+    
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 64 * 12 * 12)
+        x = F.relu(self.fc1(x))
+        x = self.dropout(x)
+        x = self.fc2(x)
+        return x
+
+def train_models(model, model_name):
 # Initialize the model, loss function, and optimizer
-model = MultiLayerFCNet(input_size, hidden_size, output_size)
-criterion = torch.nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+#model = MultiLayerFCNet(input_size, hidden_size, output_size)
+    criterion = torch.nn.CrossEntropyLoss()
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+    
+    # Train the model
+    for epoch in range(num_epochs):
+        avg_loss_epoch = 0  # To keep track of average loss for each epoch
+        batch_loss = 0  # Sum of losses for the batches processed
+        total_batches = 0  # Total batches processed
+        for images, labels in train_loader:
+            if isinstance(model, MultiLayerFCNet):
+                # Reshape images to match the input size of the model
+                images = images.view(-1, 48 * 48)
+            # Get model predictions for the current batch
+            outputs = model(images)
+            # Compute the loss between the predicted outputs and true labels
+            loss = criterion(outputs, labels)
+            # Clear previous gradients
+            optimizer.zero_grad()
+            # Backpropagate to compute gradients
+            loss.backward()
+            # Update model parameters
+            optimizer.step()
+            total_batches += 1
+            batch_loss += loss.item()
+        # Compute average loss for the current epoch
+        avg_loss_epoch = batch_loss / total_batches
+        print(f'Epoch [{epoch+1}/{num_epochs}], Average Loss for {model_name} epoch[{epoch+1}] = {avg_loss_epoch:.4f}')
+    
+    # Evaluate the model on test data
+    # Initialize counters
+    correct = 0
+    total = 0
 
-# Train the model
-for epoch in range(num_epochs):
-    avg_loss_epoch = 0  # To keep track of average loss for each epoch
-    batch_loss = 0  # Sum of losses for the batches processed
-    total_batches = 0  # Total batches processed
-    for images, labels in train_loader:
-        # Reshape images to match the input size of the model
-        images = images.view(-1, 48 * 48)
-        # Get model predictions for the current batch
-        outputs = model(images)
-        # Compute the loss between the predicted outputs and true labels
-        loss = criterion(outputs, labels)
-        # Clear previous gradients
-        optimizer.zero_grad()
-        # Backpropagate to compute gradients
-        loss.backward()
-        # Update model parameters
-        optimizer.step()
-        total_batches += 1
-        batch_loss += loss.item()
-    # Compute average loss for the current epoch
-    avg_loss_epoch = batch_loss / total_batches
-    print(f'Epoch [{epoch+1}/{num_epochs}], Average Loss for epoch[{epoch+1}] = {avg_loss_epoch:.4f}')
+    # Loop through test data (one by one and not batch by batch)
+    for i in range(len(test_dataset)):
+        image, label = test_dataset[i]
+        if isinstance(model, MultiLayerFCNet):
+            # Reshape the image to match the input size of the model
+            image = image.view(-1, 48 * 48)
+        else:
+            # Add batch dimension to match the input size of the model
+            image = image.unsqueeze(0)
+        # Get prediction for current image
+        output = model(image)
 
-# Evaluate the model on test data
-# Initialize counters
-correct = 0
-total = 0
+        # Get predicted class label using torch.argmax()
+        predicted = torch.argmax(output, dim=1)
 
-# Loop through test data (one by one and not batch by batch)
-for i in range(len(test_dataset)):
-    image, label = test_dataset[i]
-    # Reshape the image to match the input size of the model
-    image = image.view(-1, 48 * 48)
+        # Insert predicted class in the results dataframe
+        results_df.loc[i, 'Predicted Label'] = classes[predicted.item()]
 
-    # Get prediction for current image
-    output = model(image)
+        # Update total number of images processed
+        total += 1
 
-    # Get predicted class label using torch.argmax()
-    predicted = torch.argmax(output, dim=1)
+        # Update correct counter by comparing predicted labels to true labels
+        correct += (predicted == label).item()
 
-    # Insert predicted class in the results dataframe
-    results_df.loc[i, 'Predicted Label'] = classes[predicted.item()]
+    # Calculate and print accuracy
+    accuracy = 100 * correct / total
+    print(f'Accuracy of {model_name} on the test images: {accuracy:.2f}%')
 
-    # Update total number of images processed
-    total += 1
+    # Save the model and prediction data
+    # Create a directory for the model
+    model_dir = os.path.join("models", model_name)
+    os.makedirs(model_dir, exist_ok=True)
 
-    # Update correct counter by comparing predicted labels to true labels
-    correct += (predicted == label).item()
+    # Save the model
+    model_path = os.path.join(model_dir, "model.pth")
+    torch.save(model.state_dict(), model_path)
 
-# Calculate and print accuracy
-accuracy = 100 * correct / total
-print(f'Accuracy of the network on the test images: {accuracy:.2f}%')
+    # Save the results in CSV
+    results_csv_path = os.path.join(model_dir, "results.csv")
+    results_df.to_csv(results_csv_path, index=False)
 
+    # Save the CSV file containing the training set
+    train_csv_path = os.path.join(model_dir, "train_dataset.csv")
+    train_data.to_csv(train_csv_path, index=False)
+
+    # Save the CSV file containing the testing set
+    test_csv_path = os.path.join(model_dir, "test_dataset.csv")
+    test_data.to_csv(test_csv_path, index=False)
+
+    # Save the CSV file containing the accuracy value of the model tested on the test set
+    accuracy_csv_path = os.path.join(model_dir, "accuracy.csv")
+    accuracy_df = pd.DataFrame({"Accuracy": [accuracy]})
+    accuracy_df.to_csv(accuracy_csv_path, index=False)
+
+    print(f"Model and related files saved in: {model_dir}")
+
+# Train and evaluate the main model
+main_model = MultiLayerFCNet(input_size, hidden_size, output_size)
+train_models(main_model, f"model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+
+# Train and evaluate variant 1
+variant1_model = CNNModelVariant1()
+train_models(variant1_model, f"variant1_model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+
+# Train and evaluate variant 2
+variant2_model = CNNModelVariant2()
+train_models(variant2_model, f"variant2_model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
 
 ### Visualization section
 # Plot some example images with their predicted labels
@@ -176,7 +262,8 @@ def denormalize(tensor, mean, std):
         t.mul_(s).add_(m)
     return tensor
 
-def plot_results(x=2, y=5):
+# Function to plot results
+def plot_results(model, test_dataset, x=2, y=5):
     # Width per image (inches)
     width_per_image = 2.4
     # Shuffle data to ensure variety in labels
@@ -201,36 +288,11 @@ def plot_results(x=2, y=5):
     plt.tight_layout()
     plt.show()
 
-# Call with optional x, y values
-plot_results()
+# Plot results for the main model
+plot_results(main_model, test_dataset)
 
-### Saving the model and prediction data
-# Create a unique model name based on current date and time
-model_name = f"model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
+# Plot results for variant 1
+plot_results(variant1_model, test_dataset)
 
-# Create a directory for the model
-model_dir = os.path.join("models", model_name)
-os.makedirs(model_dir, exist_ok=True)
-
-# Save the model
-model_path = os.path.join(model_dir, "model.pth")
-torch.save(model.state_dict(), model_path)
-
-# Save the results in CSV
-results_csv_path = os.path.join(model_dir, "results.csv")
-results_df.to_csv(results_csv_path, index=False)
-
-# Save the CSV file containing the training set
-train_csv_path = os.path.join(model_dir, "train_dataset.csv")
-train_data.to_csv(train_csv_path, index=False)
-
-# Save the CSV file containing the testing set
-test_csv_path = os.path.join(model_dir, "test_dataset.csv")
-test_data.to_csv(test_csv_path, index=False)
-
-# Save the CSV file containing the accuracy value of the model tested on the test set
-accuracy_csv_path = os.path.join(model_dir, "accuracy.csv")
-accuracy_df = pd.DataFrame({"Accuracy": [accuracy]})
-accuracy_df.to_csv(accuracy_csv_path, index=False)
-
-print(f"Model and related files saved in: {model_dir}")
+# Plot results for variant 2
+plot_results(variant2_model, test_dataset)
