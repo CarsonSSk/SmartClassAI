@@ -108,7 +108,49 @@ class MultiLayerFCNet(nn.Module):
         # Apply log_softmax to get log probabilities for multi-class classification
         return F.log_softmax(x, dim=1)
 
-#Variant 1: Vary the Number of Convolutional Layers    
+#CNN (Based on CIFAR10 example in Lab 7)
+class CNN(nn.Module):
+    def __init__(self):
+        super(CNN, self).__init__()
+        self.conv_layer = nn.Sequential(
+            nn.Conv2d(in_channels=1, out_channels=48, kernel_size=3, padding=1),
+            nn.BatchNorm2d(48),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=48, out_channels=48, kernel_size=3, padding=1),
+            nn.BatchNorm2d(48),
+            nn.LeakyReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(in_channels=48, out_channels=64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+        )
+        self.fc_layer = nn.Sequential(
+            nn.Dropout(p=0.1),
+            nn.Linear(12 * 12 * 64, 1000),
+            nn.ReLU(inplace=True),
+            nn.Linear(1000, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.1),
+            nn.Linear(512, 10)
+        )
+    def forward(self, x):
+        # Ensure the input tensor has shape [batch_size, channels, height, width]
+        if x.dim() == 2:  # Input tensor has shape [batch_size, num_pixels]
+            batch_size = x.size(0)
+            x = x.view(batch_size, 1, 48, 48)  # Reshape to [batch_size, 1, 48, 48]
+        # conv layers
+        x = self.conv_layer(x)
+        # flatten
+        x = x.view(x.size(0), -1)
+        # fc layer
+        x = self.fc_layer(x)
+        return x
+
+#Variant 1: Vary the Number of Convolutional Layers
 class CNNModelVariant1(nn.Module):
     def __init__(self):
         super(CNNModelVariant1, self).__init__()
@@ -121,6 +163,10 @@ class CNNModelVariant1(nn.Module):
         self.dropout = nn.Dropout(0.25)
     
     def forward(self, x):
+        # Ensure the input tensor has shape [batch_size, channels, height, width]
+        if x.dim() == 2:  # Input tensor has shape [batch_size, num_pixels]
+            batch_size = x.size(0)
+            x = x.view(batch_size, 1, 48, 48)  # Reshape to [batch_size, 1, 48, 48]
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
         x = self.pool(F.relu(self.conv3(x)))
@@ -142,6 +188,10 @@ class CNNModelVariant2(nn.Module):
         self.dropout = nn.Dropout(0.25)
     
     def forward(self, x):
+        # Ensure the input tensor has shape [batch_size, channels, height, width]
+        if x.dim() == 2:  # Input tensor has shape [batch_size, num_pixels]
+            batch_size = x.size(0)
+            x = x.view(batch_size, 1, 48, 48)  # Reshape to [batch_size, 1, 48, 48]
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
         x = x.view(-1, 64 * 12 * 12)
@@ -243,7 +293,8 @@ def train_models(model, model_name):
     print(f"Model and related files saved in: {model_dir}")
 
 # Train and evaluate the main model
-main_model = MultiLayerFCNet(input_size, hidden_size, output_size)
+#main_model = MultiLayerFCNet(input_size, hidden_size, output_size)
+main_model = CNN()
 train_models(main_model, f"model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
 
 # Train and evaluate variant 1
@@ -270,6 +321,8 @@ def plot_results(model, test_dataset, x=2, y=5):
     indices = torch.randperm(len(test_dataset))[:x * y]
     images = torch.stack([test_dataset[i][0] for i in indices])
     labels = torch.tensor([test_dataset[i][1] for i in indices])
+    # Add a batch dimension to images
+    images = images.unsqueeze(1)  # Adding channel dimension
     # Get predictions for these images
     random_images_reshaped = images.view(-1, 48 * 48)
     outputs = model(random_images_reshaped)

@@ -7,6 +7,9 @@ import numpy as np
 base_dir = "models"
 label_mapping = {'happy': 0, 'angry': 1, 'neutral': 2, 'engaged': 3}
 class_names = ['happy', 'angry', 'neutral', 'engaged']
+main_model="model_2024-06-08_00-51-01"
+variant1_model="variant1_model_2024-06-08_00-52-17"
+variant2_model="variant2_model_2024-06-08_00-52-36"
 
 def load_results(model_dir):
     results_df = pd.read_csv(os.path.join(base_dir, model_dir, "results.csv"))
@@ -56,17 +59,17 @@ def evaluate_model(model_dir):
     plot_confusion_matrix(results_df, model_dir)
 
 # Main model evaluation
-evaluate_model("model_2024-06-07_16-14-30")
+evaluate_model(main_model)
 
 # Variant models evaluation
-evaluate_model("variant1_model_2024-06-07_16-14-32")
-evaluate_model("variant2_model_2024-06-07_16-14-50")
+evaluate_model(variant1_model)
+evaluate_model(variant2_model)
 
 # Summarize the findings in a table
 def summarize_results():
-    main_metrics = evaluate_and_get_metrics(load_results("model_2024-06-07_16-14-30"))
-    variant1_metrics = evaluate_and_get_metrics(load_results("variant1_model_2024-06-07_16-14-32"))
-    variant2_metrics = evaluate_and_get_metrics(load_results("variant2_model_2024-06-07_16-14-50"))
+    main_metrics = evaluate_and_get_metrics(load_results("model_2024-06-08_00-51-01"))
+    variant1_metrics = evaluate_and_get_metrics(load_results("variant1_model_2024-06-08_00-52-17"))
+    variant2_metrics = evaluate_and_get_metrics(load_results("variant2_model_2024-06-08_00-52-36"))
 
     summary_table = pd.DataFrame({
         'Model': ['Main Model', 'Variant 1', 'Variant 2'],
