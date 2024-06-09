@@ -192,7 +192,7 @@ def train_models(model, model_name):
     os.makedirs(os.path.join("models", model_name), exist_ok=True)
     patience_counter = 0
     
-    for epoch in range(num_epochs):
+    for epoch in range(30):  # Setting maximum epochs to 30
         model.train()
         avg_loss_epoch = 0
         total_batches = 0
@@ -208,7 +208,7 @@ def train_models(model, model_name):
             avg_loss_epoch += loss.item()
         
         avg_loss_epoch /= total_batches
-        print(f'Epoch [{epoch+1}/{num_epochs}], Average Loss for {model_name} epoch[{epoch+1}] = {avg_loss_epoch:.4f}')
+        print(f'Epoch [{epoch+1}/30], Average Loss for {model_name} epoch[{epoch+1}] = {avg_loss_epoch:.4f}')
         
         # Validation phase
         model.eval()
@@ -222,19 +222,26 @@ def train_models(model, model_name):
                 val_loss += loss.item()
         val_loss /= len(val_loader)
         print(f'Validation Loss for {model_name} epoch[{epoch+1}] = {val_loss:.4f}')
-        print(f'Patience count: {patience_counter} / {patience}')
         
-        if epoch >= num_epochs - 1:  # Ensure we run for at least num_epochs epochs
-            if val_loss < best_val_loss:
-                best_val_loss = val_loss
-                torch.save(model.state_dict(), best_model_path)
-                patience_counter = 0
-            else:
-                patience_counter += 1
+        # Early stopping logic
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            torch.save(model.state_dict(), best_model_path)
+            patience_counter = 0
+        else:
+            patience_counter += 1
         
-            if patience_counter >= patience:
-                print(f'Early stopping at epoch {epoch+1}')
-                break
+        # Print patience counter after each epoch
+        print(f'Patience counter: {patience_counter} / {patience}')
+        
+        # Ensure training runs for at least 10 epochs and stops early if patience counter is met
+        if epoch >= 9 and patience_counter >= patience:
+            print(f'Early stopping at epoch {epoch+1}')
+            break
+    
+    # Save the validation loss
+    with open(os.path.join("models", model_name, "validation_loss.txt"), "w") as f:
+        f.write(str(best_val_loss))
     
     # Evaluate the model on test data
     model.load_state_dict(torch.load(best_model_path))
@@ -313,6 +320,34 @@ best_model_save_path = os.path.join("models", "best", f"{best_model_name}_best.p
 os.makedirs(os.path.dirname(best_model_save_path), exist_ok=True)
 torch.save(best_model_overall.state_dict(), best_model_save_path)
 print(f"Best model saved at: {best_model_save_path}")
+
+# Compare with existing best model in models/best/
+existing_best_model_path = os.path.join("models", "best")
+if os.path.exists(existing_best_model_path):
+    existing_best_models = [f for f in os.listdir(existing_best_model_path) if f.endswith("_best.pth")]
+    
+    for existing_best_model_file in existing_best_models:
+        existing_best_model_name = existing_best_model_file.replace('_best.pth', '')
+        existing_best_model_val_loss_path = os.path.join("models", existing_best_model_name, "validation_loss.txt")
+        
+        if os.path.exists(existing_best_model_val_loss_path):
+            with open(existing_best_model_val_loss_path, "r") as f:
+                existing_best_val_loss = float(f.read())
+            
+            if best_val_loss_overall < existing_best_val_loss:
+                os.remove(os.path.join("models", "best", existing_best_model_file))
+                torch.save(best_model_overall.state_dict(), best_model_save_path)
+                print(f"Best model saved at: {best_model_save_path}")
+            elif best_val_loss_overall == existing_best_val_loss:
+                torch.save(best_model_overall.state_dict(), best_model_save_path)
+                print(f"Tie! Both models saved at: {best_model_save_path}")
+            else:
+                os.remove(best_model_save_path)
+                print(f"Existing best model remains: {existing_best_model_name} with validation loss: {existing_best_val_loss:.4f}")
+                break
+else:
+    torch.save(best_model_overall.state_dict(), best_model_save_path)
+    print(f"Best model saved at: {best_model_save_path}")
 
 ### Visualization section
 # Plot some example images with their predicted labels
