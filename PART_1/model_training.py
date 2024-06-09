@@ -313,7 +313,7 @@ os.makedirs(os.path.dirname(best_model_save_path), exist_ok=True)
 torch.save(best_model_overall.state_dict(), best_model_save_path)
 print(f"Best model saved at: {best_model_save_path}")
 
-'''### Visualization section
+### Visualization section
 # Plot some example images with their predicted labels
 
 def denormalize(tensor, mean, std):
@@ -327,8 +327,23 @@ def plot_results(model, test_dataset, x=2, y=5):
     indices = torch.randperm(len(test_dataset))[:x * y]
     images = torch.stack([test_dataset[i][0] for i in indices])
     labels = torch.tensor([test_dataset[i][1] for i in indices])
-    images = images.unsqueeze(1)
-    outputs = model(images)
+
+    # Ensure the images are reshaped to [batch_size, 1, 48, 48]
+    if images.dim() == 3:  # [batch_size, 48, 48]
+        images = images.unsqueeze(1)  # [batch_size, 1, 48, 48]
+    elif images.dim() == 4 and images.shape[1] != 1:  # [batch_size, channels, 48, 48]
+        images = images[:, :1, :, :]  # Ensure single channel if multiple channels are present
+
+    # Debug: Print the shape of the images tensor
+    print(f"Shape of images tensor: {images.shape}")
+
+    # Move images to the same device as the model
+    images = images.to(next(model.parameters()).device)
+
+    # Get model predictions
+    with torch.no_grad():
+        outputs = model(images)
+
     _, predicted = torch.max(outputs.data, 1)
     fig, axes = plt.subplots(x, y, figsize=(y * width_per_image, x * width_per_image))
     for i, ax in enumerate(axes.ravel()):
@@ -349,4 +364,4 @@ plot_results(main_model, test_dataset)
 plot_results(variant1_model, test_dataset)
 
 # Plot results for variant 2
-plot_results(variant2_model, test_dataset)'''
+plot_results(variant2_model, test_dataset)
