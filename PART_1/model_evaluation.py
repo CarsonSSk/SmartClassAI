@@ -6,10 +6,7 @@ import numpy as np
 
 base_dir = "models"
 label_mapping = {'happy': 0, 'angry': 1, 'neutral': 2, 'engaged': 3}
-class_names = ['happy', 'angry', 'neutral', 'engaged']
-main_model="model_2024-06-08_00-51-01"
-variant1_model="variant1_model_2024-06-08_00-52-17"
-variant2_model="variant2_model_2024-06-08_00-52-36"
+classes = ['happy', 'angry', 'neutral', 'engaged']
 
 def load_results(model_dir):
     results_df = pd.read_csv(os.path.join(base_dir, model_dir, "results.csv"))
@@ -37,13 +34,13 @@ def plot_confusion_matrix(results_df, model_name):
     cax = ax.matshow(conf_matrix, cmap="Blues")
     plt.colorbar(cax)
 
-    ax.set_xticks(np.arange(len(class_names)))
-    ax.set_yticks(np.arange(len(class_names)))
-    ax.set_xticklabels(class_names)
-    ax.set_yticklabels(class_names)
+    ax.set_xticks(np.arange(len(classes)))
+    ax.set_yticks(np.arange(len(classes)))
+    ax.set_xticklabels(classes)
+    ax.set_yticklabels(classes)
 
-    for i in range(len(class_names)):
-        for j in range(len(class_names)):
+    for i in range(len(classes)):
+        for j in range(len(classes)):
             ax.text(j, i, str(conf_matrix[i, j]), ha='center', va='center', color='black')
 
     plt.xlabel('Predicted Label')
@@ -51,25 +48,28 @@ def plot_confusion_matrix(results_df, model_name):
     plt.title(f'Confusion Matrix - {model_name}')
     plt.show()
 
-# Evaluate and print results for a given model
 def evaluate_model(model_dir):
     results_df = load_results(model_dir)
     metrics = evaluate_and_get_metrics(results_df)
     print_evaluation_results(model_dir, metrics)
     plot_confusion_matrix(results_df, model_dir)
 
+main_model_dir = "model_2024-06-09_01-33-15"
+variant1_model_dir = "variant1_model_2024-06-09_01-34-41"
+variant2_model_dir = "variant2_model_2024-06-09_01-35-05"
+
 # Main model evaluation
-evaluate_model(main_model)
+evaluate_model(main_model_dir)
 
 # Variant models evaluation
-evaluate_model(variant1_model)
-evaluate_model(variant2_model)
+evaluate_model(variant1_model_dir)
+evaluate_model(variant2_model_dir)
 
 # Summarize the findings in a table
 def summarize_results():
-    main_metrics = evaluate_and_get_metrics(load_results("model_2024-06-08_00-51-01"))
-    variant1_metrics = evaluate_and_get_metrics(load_results("variant1_model_2024-06-08_00-52-17"))
-    variant2_metrics = evaluate_and_get_metrics(load_results("variant2_model_2024-06-08_00-52-36"))
+    main_metrics = evaluate_and_get_metrics(load_results(main_model_dir))
+    variant1_metrics = evaluate_and_get_metrics(load_results(variant1_model_dir))
+    variant2_metrics = evaluate_and_get_metrics(load_results(variant2_model_dir))
 
     summary_table = pd.DataFrame({
         'Model': ['Main Model', 'Variant 1', 'Variant 2'],
@@ -85,5 +85,4 @@ def summarize_results():
     print(summary_table)
     summary_table.to_csv('model_evaluation_summary.csv', index=False)
 
-# Summarize results in a table
 summarize_results()

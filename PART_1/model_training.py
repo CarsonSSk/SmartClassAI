@@ -1,5 +1,3 @@
-## This code is heavily inspired by the Lab 6 questions 2-3 codes based on the CIFAR10 and Iris datasets, adapted to our own data structure.
-
 import os
 import torch
 import torch.nn as nn
@@ -9,31 +7,26 @@ import pandas as pd
 from PIL import Image
 import numpy as np
 import torchvision.transforms as transforms
-import matplotlib.pyplot as plt
 import datetime
+import matplotlib.pyplot as plt
 
-# Defining the directories and CSV files containing the training and testing data (already split)
+# Defining the directories and CSV files containing the training, validation, and testing data
 base_dir = "data"
 train_data = pd.read_csv(os.path.join(base_dir, "train_dataset.csv"))
+val_data = pd.read_csv(os.path.join(base_dir, "validation_dataset.csv"))
 test_data = pd.read_csv(os.path.join(base_dir, "test_dataset.csv"))
 
 # Define model parameters and settings
 input_size = 48 * 48  # Input size for 48x48 grayscale images
 hidden_size = 50  # Number of hidden units
 output_size = 4  # Number of output classes
-num_epochs = 10  # Number of training epochs
+num_epochs = 10  # Minimum number of training epochs
 learning_rate = 0.005  # Learning rate
+patience = 3  # Early stopping patience
 
 # Label mapping to facilitate use with PyTorch and tensor formats
 label_mapping = {'happy': 0, 'angry': 1, 'neutral': 2, 'engaged': 3}
 classes = ['happy', 'angry', 'neutral', 'engaged']
-
-# Creating a dataframe to store the predicted labels for each image to allow subsequent evaluation and visualization.
-results_df = pd.DataFrame({
-    'Image Path': test_data['Path'],
-    'Correct Label': test_data['Label'],
-    'Predicted Label': "N/A"
-})
 
 # Function to load data and labels from CSV files
 def LoadData(data):
@@ -74,41 +67,37 @@ class CustomDataset(torch.utils.data.Dataset):
             image = self.transform(image)
         return image, torch.tensor(label, dtype=torch.long)
 
-# Load training and test data
+# Load training, validation, and test data
 x_train, y_train = LoadData(train_data)
+x_val, y_val = LoadData(val_data)
 x_test, y_test = LoadData(test_data)
+
 train_dataset = CustomDataset(x_train, y_train, transform=transform)
+val_dataset = CustomDataset(x_val, y_val, transform=transform)
 test_dataset = CustomDataset(x_test, y_test, transform=transform)
 
-# Create data loaders for training and testing
+# Create data loaders for training, validation, and testing
 train_loader = td.DataLoader(train_dataset, batch_size=20, shuffle=True)
+val_loader = td.DataLoader(val_dataset, batch_size=20, shuffle=False)
 test_loader = td.DataLoader(test_dataset, batch_size=20, shuffle=False)
 
 # Define the multi-layer fully connected neural network
 class MultiLayerFCNet(nn.Module):
     def __init__(self, D_in, H, D_out):
         super(MultiLayerFCNet, self).__init__()
-        # Define the input layer (from input dimension to hidden dimension)
         self.linear1 = torch.nn.Linear(D_in, H)
-        # Define two hidden layers
         self.linear2 = torch.nn.Linear(H, H)
         self.linear3 = torch.nn.Linear(H, H)
-        # Define the output layer (from hidden dimension to output dimension)
         self.linear4 = torch.nn.Linear(H, D_out)
 
     def forward(self, x):
-        # Pass input through the input layer and apply ReLU activation
         x = F.relu(self.linear1(x))
-        # Pass through the first hidden layer and apply ReLU activation
         x = F.relu(self.linear2(x))
-        # Pass through the second hidden layer and apply ReLU activation
         x = F.relu(self.linear3(x))
-        # Pass through the output layer
         x = self.linear4(x)
-        # Apply log_softmax to get log probabilities for multi-class classification
         return F.log_softmax(x, dim=1)
 
-#CNN (Based on CIFAR10 example in Lab 7)
+# CNN (Based on CIFAR10 example in Lab 7)
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
@@ -135,38 +124,33 @@ class CNN(nn.Module):
             nn.Linear(1000, 512),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.1),
-            nn.Linear(512, 10)
+            nn.Linear(512, 4)
         )
     def forward(self, x):
-        # Ensure the input tensor has shape [batch_size, channels, height, width]
-        if x.dim() == 2:  # Input tensor has shape [batch_size, num_pixels]
+        if x.dim() == 2:
             batch_size = x.size(0)
-            x = x.view(batch_size, 1, 48, 48)  # Reshape to [batch_size, 1, 48, 48]
-        # conv layers
+            x = x.view(batch_size, 1, 48, 48)
         x = self.conv_layer(x)
-        # flatten
         x = x.view(x.size(0), -1)
-        # fc layer
         x = self.fc_layer(x)
         return x
 
-#Variant 1: Vary the Number of Convolutional Layers
+# Variant 1: Vary the Number of Convolutional Layers
 class CNNModelVariant1(nn.Module):
     def __init__(self):
         super(CNNModelVariant1, self).__init__()
         self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)  # Additional layer
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
         self.fc1 = nn.Linear(128 * 6 * 6, 128)
         self.fc2 = nn.Linear(128, 4)
         self.dropout = nn.Dropout(0.25)
     
     def forward(self, x):
-        # Ensure the input tensor has shape [batch_size, channels, height, width]
-        if x.dim() == 2:  # Input tensor has shape [batch_size, num_pixels]
+        if x.dim() == 2:
             batch_size = x.size(0)
-            x = x.view(batch_size, 1, 48, 48)  # Reshape to [batch_size, 1, 48, 48]
+            x = x.view(batch_size, 1, 48, 48)
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
         x = self.pool(F.relu(self.conv3(x)))
@@ -176,11 +160,11 @@ class CNNModelVariant1(nn.Module):
         x = self.fc2(x)
         return x
 
-#Variant 2: Experiment with Different Kernel Sizes
+# Variant 2: Experiment with Different Kernel Sizes
 class CNNModelVariant2(nn.Module):
     def __init__(self):
         super(CNNModelVariant2, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)  # Larger kernel size
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=5, padding=2)
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
         self.fc1 = nn.Linear(64 * 12 * 12, 128)
@@ -188,10 +172,9 @@ class CNNModelVariant2(nn.Module):
         self.dropout = nn.Dropout(0.25)
     
     def forward(self, x):
-        # Ensure the input tensor has shape [batch_size, channels, height, width]
-        if x.dim() == 2:  # Input tensor has shape [batch_size, num_pixels]
+        if x.dim() == 2:
             batch_size = x.size(0)
-            x = x.view(batch_size, 1, 48, 48)  # Reshape to [batch_size, 1, 48, 48]
+            x = x.view(batch_size, 1, 48, 48)
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
         x = x.view(-1, 64 * 12 * 12)
@@ -201,111 +184,136 @@ class CNNModelVariant2(nn.Module):
         return x
 
 def train_models(model, model_name):
-# Initialize the model, loss function, and optimizer
-#model = MultiLayerFCNet(input_size, hidden_size, output_size)
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
     
-    # Train the model
+    best_val_loss = float('inf')
+    best_model_path = os.path.join("models", model_name, "best_model.pth")
+    os.makedirs(os.path.join("models", model_name), exist_ok=True)
+    patience_counter = 0
+    
     for epoch in range(num_epochs):
-        avg_loss_epoch = 0  # To keep track of average loss for each epoch
-        batch_loss = 0  # Sum of losses for the batches processed
-        total_batches = 0  # Total batches processed
+        model.train()
+        avg_loss_epoch = 0
+        total_batches = 0
         for images, labels in train_loader:
             if isinstance(model, MultiLayerFCNet):
-                # Reshape images to match the input size of the model
                 images = images.view(-1, 48 * 48)
-            # Get model predictions for the current batch
             outputs = model(images)
-            # Compute the loss between the predicted outputs and true labels
             loss = criterion(outputs, labels)
-            # Clear previous gradients
             optimizer.zero_grad()
-            # Backpropagate to compute gradients
             loss.backward()
-            # Update model parameters
             optimizer.step()
             total_batches += 1
-            batch_loss += loss.item()
-        # Compute average loss for the current epoch
-        avg_loss_epoch = batch_loss / total_batches
+            avg_loss_epoch += loss.item()
+        
+        avg_loss_epoch /= total_batches
         print(f'Epoch [{epoch+1}/{num_epochs}], Average Loss for {model_name} epoch[{epoch+1}] = {avg_loss_epoch:.4f}')
+        
+        # Validation phase
+        model.eval()
+        val_loss = 0
+        with torch.no_grad():
+            for images, labels in val_loader:
+                if isinstance(model, MultiLayerFCNet):
+                    images = images.view(-1, 48 * 48)
+                outputs = model(images)
+                loss = criterion(outputs, labels)
+                val_loss += loss.item()
+        val_loss /= len(val_loader)
+        print(f'Validation Loss for {model_name} epoch[{epoch+1}] = {val_loss:.4f}')
+        
+        if epoch >= num_epochs - 1:  # Ensure we run for at least num_epochs epochs
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                torch.save(model.state_dict(), best_model_path)
+                patience_counter = 0
+            else:
+                patience_counter += 1
+        
+            if patience_counter >= patience:
+                print(f'Early stopping at epoch {epoch+1}')
+                break
     
     # Evaluate the model on test data
-    # Initialize counters
+    model.load_state_dict(torch.load(best_model_path))
+    model.eval()
     correct = 0
     total = 0
 
-    # Loop through test data (one by one and not batch by batch)
+    results_df = pd.DataFrame({
+        'Image Path': test_data['Path'],
+        'Correct Label': test_data['Label'],
+        'Predicted Label': "N/A"
+    })
+
     for i in range(len(test_dataset)):
         image, label = test_dataset[i]
         if isinstance(model, MultiLayerFCNet):
-            # Reshape the image to match the input size of the model
             image = image.view(-1, 48 * 48)
         else:
-            # Add batch dimension to match the input size of the model
             image = image.unsqueeze(0)
-        # Get prediction for current image
         output = model(image)
-
-        # Get predicted class label using torch.argmax()
         predicted = torch.argmax(output, dim=1)
-
-        # Insert predicted class in the results dataframe
         results_df.loc[i, 'Predicted Label'] = classes[predicted.item()]
-
-        # Update total number of images processed
         total += 1
-
-        # Update correct counter by comparing predicted labels to true labels
         correct += (predicted == label).item()
 
-    # Calculate and print accuracy
     accuracy = 100 * correct / total
     print(f'Accuracy of {model_name} on the test images: {accuracy:.2f}%')
 
-    # Save the model and prediction data
-    # Create a directory for the model
-    model_dir = os.path.join("models", model_name)
-    os.makedirs(model_dir, exist_ok=True)
-
-    # Save the model
-    model_path = os.path.join(model_dir, "model.pth")
-    torch.save(model.state_dict(), model_path)
-
-    # Save the results in CSV
-    results_csv_path = os.path.join(model_dir, "results.csv")
+    # Save the results
+    results_csv_path = os.path.join("models", model_name, "results.csv")
     results_df.to_csv(results_csv_path, index=False)
-
-    # Save the CSV file containing the training set
-    train_csv_path = os.path.join(model_dir, "train_dataset.csv")
-    train_data.to_csv(train_csv_path, index=False)
-
-    # Save the CSV file containing the testing set
-    test_csv_path = os.path.join(model_dir, "test_dataset.csv")
-    test_data.to_csv(test_csv_path, index=False)
-
-    # Save the CSV file containing the accuracy value of the model tested on the test set
-    accuracy_csv_path = os.path.join(model_dir, "accuracy.csv")
+    accuracy_csv_path = os.path.join("models", model_name, "accuracy.csv")
     accuracy_df = pd.DataFrame({"Accuracy": [accuracy]})
     accuracy_df.to_csv(accuracy_csv_path, index=False)
 
-    print(f"Model and related files saved in: {model_dir}")
+    print(f"Model and related files saved in: models/{model_name}")
+
+    return best_val_loss
+
+# Track the best model across all variants
+best_model_overall = None
+best_val_loss_overall = float('inf')
+best_model_name = ""
 
 # Train and evaluate the main model
-#main_model = MultiLayerFCNet(input_size, hidden_size, output_size)
+main_model_name = f"model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
 main_model = CNN()
-train_models(main_model, f"model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+main_model_val_loss = train_models(main_model, main_model_name)
+if main_model_val_loss < best_val_loss_overall:
+    best_val_loss_overall = main_model_val_loss
+    best_model_overall = main_model
+    best_model_name = main_model_name
 
 # Train and evaluate variant 1
+variant1_model_name = f"variant1_model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
 variant1_model = CNNModelVariant1()
-train_models(variant1_model, f"variant1_model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+variant1_model_val_loss = train_models(variant1_model, variant1_model_name)
+if variant1_model_val_loss < best_val_loss_overall:
+    best_val_loss_overall = variant1_model_val_loss
+    best_model_overall = variant1_model
+    best_model_name = variant1_model_name
 
 # Train and evaluate variant 2
+variant2_model_name = f"variant2_model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
 variant2_model = CNNModelVariant2()
-train_models(variant2_model, f"variant2_model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+variant2_model_val_loss = train_models(variant2_model, variant2_model_name)
+if variant2_model_val_loss < best_val_loss_overall:
+    best_val_loss_overall = variant2_model_val_loss
+    best_model_overall = variant2_model
+    best_model_name = variant2_model_name
 
-### Visualization section
+print(f"Best model overall: {best_model_name} with validation loss: {best_val_loss_overall:.4f}")
+
+# Save the best model to models/best/
+best_model_save_path = os.path.join("models", "best", f"{best_model_name}_best.pth")
+os.makedirs(os.path.dirname(best_model_save_path), exist_ok=True)
+torch.save(best_model_overall.state_dict(), best_model_save_path)
+print(f"Best model saved at: {best_model_save_path}")
+
+'''### Visualization section
 # Plot some example images with their predicted labels
 
 def denormalize(tensor, mean, std):
@@ -315,24 +323,17 @@ def denormalize(tensor, mean, std):
 
 # Function to plot results
 def plot_results(model, test_dataset, x=2, y=5):
-    # Width per image (inches)
     width_per_image = 2.4
-    # Shuffle data to ensure variety in labels
     indices = torch.randperm(len(test_dataset))[:x * y]
     images = torch.stack([test_dataset[i][0] for i in indices])
     labels = torch.tensor([test_dataset[i][1] for i in indices])
-    # Add a batch dimension to images
-    images = images.unsqueeze(1)  # Adding channel dimension
-    # Get predictions for these images
-    random_images_reshaped = images.view(-1, 48 * 48)
-    outputs = model(random_images_reshaped)
+    images = images.unsqueeze(1)
+    outputs = model(images)
     _, predicted = torch.max(outputs.data, 1)
     fig, axes = plt.subplots(x, y, figsize=(y * width_per_image, x * width_per_image))
-    # Iterate over the random images and display them along with their predicted labels
     for i, ax in enumerate(axes.ravel()):
-        # Denormalize image
         img = denormalize(images[i], [0.5], [0.5])
-        img = img.squeeze().numpy()  # Convert image to numpy array
+        img = img.squeeze().numpy()
         true_label = classes[labels[i]]
         pred_label = classes[predicted[i]]
         ax.imshow(img, cmap='gray')
@@ -348,4 +349,4 @@ plot_results(main_model, test_dataset)
 plot_results(variant1_model, test_dataset)
 
 # Plot results for variant 2
-plot_results(variant2_model, test_dataset)
+plot_results(variant2_model, test_dataset)'''
