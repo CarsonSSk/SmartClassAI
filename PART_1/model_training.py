@@ -222,6 +222,7 @@ def train_models(model, model_name):
                 val_loss += loss.item()
         val_loss /= len(val_loader)
         print(f'Validation Loss for {model_name} epoch[{epoch+1}] = {val_loss:.4f}')
+        print(f'Patience count: {patience_counter} / {patience}')
         
         if epoch >= num_epochs - 1:  # Ensure we run for at least num_epochs epochs
             if val_loss < best_val_loss:
