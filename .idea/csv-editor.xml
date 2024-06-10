@@ -52,6 +52,27 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\PART_1\models\best\accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\best\results.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\best\validation_loss.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\PART_1\models\model_2024-06-06_01-49-23\accuracy.csv">
           <value>
             <Attribute>
@@ -116,6 +137,139 @@
           </value>
         </entry>
         <entry key="\PART_1\models\model_2024-06-06_02-16-39\results.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\model_2024-06-10_13-22-39\accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\model_2024-06-10_13-22-39\validation_loss.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\model_2024-06-10_13-36-39\accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\model_2024-06-10_13-36-39\validation_loss.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\model_2024-06-10_14-12-47\accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\model_2024-06-10_14-16-46\validation_loss.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\model_2024-06-10_14-31-43\validation_loss.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\variant1_model_2024-06-10_13-24-11\accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\variant1_model_2024-06-10_13-24-11\validation_loss.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\variant1_model_2024-06-10_13-38-51\accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\variant1_model_2024-06-10_14-14-22\accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\variant1_model_2024-06-10_14-18-26\validation_loss.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\variant2_model_2024-06-10_13-24-42\accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\variant2_model_2024-06-10_13-24-42\validation_loss.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\variant2_model_2024-06-10_13-39-35\accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\variant2_model_2024-06-10_14-15-00\accuracy.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\variant2_model_2024-06-10_14-19-01\validation_loss.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\runFiles\directory_images_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\runFiles\run_cleaned_image_data.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

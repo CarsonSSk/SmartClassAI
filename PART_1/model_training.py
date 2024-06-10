@@ -9,6 +9,7 @@ import numpy as np
 import torchvision.transforms as transforms
 import datetime
 import matplotlib.pyplot as plt
+import csv
 
 # Defining the directories and CSV files containing the training, validation, and testing data
 base_dir = "data"
@@ -240,8 +241,11 @@ def train_models(model, model_name):
             break
     
     # Save the validation loss
-    with open(os.path.join("models", model_name, "validation_loss.txt"), "w") as f:
-        f.write(str(best_val_loss))
+    #with open(os.path.join("models", model_name, "validation_loss.txt"), "w") as f:
+    #    f.write(str(best_val_loss))
+    validation_loss_csv_path = os.path.join("models", model_name, "validation_loss.csv")
+    val_loss_df = pd.DataFrame({"Validation Loss": [best_val_loss]})
+    val_loss_df.to_csv(validation_loss_csv_path, index=False)
     
     # Evaluate the model on test data
     model.load_state_dict(torch.load(best_model_path))
@@ -315,39 +319,76 @@ if variant2_model_val_loss < best_val_loss_overall:
 
 print(f"Best model overall: {best_model_name} with validation loss: {best_val_loss_overall:.4f}")
 
-# Save the best model to models/best/
-best_model_save_path = os.path.join("models", "best", f"{best_model_name}_best.pth")
-os.makedirs(os.path.dirname(best_model_save_path), exist_ok=True)
-torch.save(best_model_overall.state_dict(), best_model_save_path)
-print(f"Best model saved at: {best_model_save_path}")
-
-# Compare with existing best model in models/best/
-existing_best_model_path = os.path.join("models", "best")
-if os.path.exists(existing_best_model_path):
+# Compare with existing best model in models/best/, saving only the best model and its associated results/accuracy/validation loss
+print("IF-0")
+if os.path.exists("models\\best"):
+    best_model_save_path = os.path.join("models", "best", f"{best_model_name}_best.pth")
+    os.makedirs(os.path.dirname(best_model_save_path), exist_ok=True)
+    existing_best_model_path = os.path.join("models", "best")
     existing_best_models = [f for f in os.listdir(existing_best_model_path) if f.endswith("_best.pth")]
+    print(existing_best_models)
+    print("IF-4")
     
     for existing_best_model_file in existing_best_models:
         existing_best_model_name = existing_best_model_file.replace('_best.pth', '')
-        existing_best_model_val_loss_path = os.path.join("models", existing_best_model_name, "validation_loss.txt")
+        existing_best_model_val_loss_path = os.path.join("models", existing_best_model_name, "validation_loss.csv")
         
         if os.path.exists(existing_best_model_val_loss_path):
-            with open(existing_best_model_val_loss_path, "r") as f:
-                existing_best_val_loss = float(f.read())
-            
+            with open(existing_best_model_val_loss_path, mode='r', newline='') as file:
+                reader = csv.reader(file)
+                rows = list(reader)
+                # Assuming the first row is the header and we want the second cell in the first column
+                if len(rows) > 1:
+                    existing_best_val_loss = float(rows[1][0])  # First column, second cell
+                else:
+                    raise IndexError("The CSV file does not have enough rows")
+            print("IF-5")
             if best_val_loss_overall < existing_best_val_loss:
                 os.remove(os.path.join("models", "best", existing_best_model_file))
                 torch.save(best_model_overall.state_dict(), best_model_save_path)
+
+                # Save the best model's results and accuracy
+                best_results_csv_path = os.path.join("models", best_model_name, "results.csv")
+                best_results_df = pd.read_csv(best_results_csv_path)
+                best_results_df.to_csv(os.path.join("models", "best", "results.csv"), index=False)
+
+                best_accuracy_csv_path = os.path.join("models", best_model_name, "accuracy.csv")
+                accuracy_df = pd.read_csv(best_accuracy_csv_path)
+                accuracy_df.to_csv(os.path.join("models", "best", "accuracy.csv"), index=False)
+
+                best_model_validation_loss_csv_path = os.path.join("models", best_model_name, "validation_loss.csv")
+                val_loss_df = pd.read_csv(best_model_validation_loss_csv_path)
+                val_loss_df.to_csv(os.path.join("models", "best", "validation_loss.csv"), index=False)
+
+                print(f"Best model and related files saved in: {best_model_save_path}")
+                print ("IF-1")
                 print(f"Best model saved at: {best_model_save_path}")
             elif best_val_loss_overall == existing_best_val_loss:
                 torch.save(best_model_overall.state_dict(), best_model_save_path)
                 print(f"Tie! Both models saved at: {best_model_save_path}")
             else:
-                os.remove(best_model_save_path)
                 print(f"Existing best model remains: {existing_best_model_name} with validation loss: {existing_best_val_loss:.4f}")
+                print("IF-2")
                 break
 else:
+    best_model_save_path = os.path.join("models", "best", f"{best_model_name}_best.pth")
+    os.makedirs(os.path.dirname(best_model_save_path), exist_ok=True)
     torch.save(best_model_overall.state_dict(), best_model_save_path)
-    print(f"Best model saved at: {best_model_save_path}")
+    # Save the best model's results and accuracy
+    best_results_csv_path = os.path.join("models", best_model_name, "results.csv")
+    best_results_df = pd.read_csv(best_results_csv_path)
+    best_results_df.to_csv(os.path.join("models", "best", "results.csv"), index=False)
+
+    best_accuracy_csv_path = os.path.join("models", best_model_name, "accuracy.csv")
+    accuracy_df = pd.read_csv(best_accuracy_csv_path)
+    accuracy_df.to_csv(os.path.join("models", "best", "accuracy.csv"), index=False)
+
+    best_model_validation_loss_csv_path = os.path.join("models", best_model_name, "validation_loss.csv")
+    val_loss_df = pd.read_csv(best_model_validation_loss_csv_path)
+    val_loss_df.to_csv(os.path.join("models", "best", "validation_loss.csv"), index=False)
+
+    print(f"Best model and related files saved in: {best_model_save_path}")
+    print("IF-3")
 
 ### Visualization section
 # Plot some example images with their predicted labels

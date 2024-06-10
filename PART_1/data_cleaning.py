@@ -12,7 +12,7 @@ image_data_csv = os.path.join(base_dir, "image_data.csv")
 output_dir = os.path.join(base_dir, "cleanedData")
 log_file = os.path.join(base_dir, "cleaned_image_data.csv")
 class DataCleaning:
-    def __init__(self, image_data_csv, output_dir, root_dir='PART_1', img_size=(48,48), log_file='PART_1/data/cleaned_image_data.csv'):
+    def __init__(self, image_data_csv, output_dir, root_dir='PART_1', img_size=(48,48), log_file='PART_1/data/cleaned_image_data.csv', setupOutputDir=True, setupLog=True):
         self.image_data_csv = image_data_csv
         self.output_dir = output_dir
         self.root_dir = root_dir
@@ -20,10 +20,12 @@ class DataCleaning:
         self.log_file = log_file
 
         # Ensure output directory exists with the required subfolders
-        self.setup_output_directories()
+        if setupOutputDir:
+            self.setup_output_directories()
 
         # Ensure the log file exists and write headers if it doesn't
-        self.setup_log_file()
+        if setupLog:
+            self.setup_log_file()
 
     def setup_output_directories(self):
         for label in ['happy', 'angry', 'neutral', 'engaged']:
