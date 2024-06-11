@@ -9,6 +9,8 @@ import numpy as np
 import torchvision.transforms as transforms
 import datetime
 import matplotlib.pyplot as plt
+import csv
+import random
 
 # Defining the directories and CSV files containing the training, validation, and testing data
 base_dir = "data"
@@ -23,6 +25,18 @@ output_size = 4  # Number of output classes
 num_epochs = 10  # Minimum number of training epochs
 learning_rate = 0.005  # Learning rate
 patience = 3  # Early stopping patience
+randomseed = 2024 # Set the random seed to a specific integer. Changing the seed will yield different model results.
+
+def set_seed(seed): # Random seed function to set the seeds to all PyTorch/Numpy randomization functions used in the training process, ensuring reproducibility
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+
+set_seed(randomseed)
 
 # Label mapping to facilitate use with PyTorch and tensor formats
 label_mapping = {'happy': 0, 'angry': 1, 'neutral': 2, 'engaged': 3}
@@ -81,38 +95,22 @@ train_loader = td.DataLoader(train_dataset, batch_size=20, shuffle=True)
 val_loader = td.DataLoader(val_dataset, batch_size=20, shuffle=False)
 test_loader = td.DataLoader(test_dataset, batch_size=20, shuffle=False)
 
-# Define the multi-layer fully connected neural network
-class MultiLayerFCNet(nn.Module):
-    def __init__(self, D_in, H, D_out):
-        super(MultiLayerFCNet, self).__init__()
-        self.linear1 = torch.nn.Linear(D_in, H)
-        self.linear2 = torch.nn.Linear(H, H)
-        self.linear3 = torch.nn.Linear(H, H)
-        self.linear4 = torch.nn.Linear(H, D_out)
-
-    def forward(self, x):
-        x = F.relu(self.linear1(x))
-        x = F.relu(self.linear2(x))
-        x = F.relu(self.linear3(x))
-        x = self.linear4(x)
-        return F.log_softmax(x, dim=1)
-
 # CNN (Based on CIFAR10 example in Lab 7)
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
         self.conv_layer = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=48, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels=1, out_channels=48, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(48),
             nn.LeakyReLU(inplace=True),
-            nn.Conv2d(in_channels=48, out_channels=48, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels=48, out_channels=48, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(48),
             nn.LeakyReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(in_channels=48, out_channels=64, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels=48, out_channels=64, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(64),
             nn.LeakyReLU(inplace=True),
-            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(64),
             nn.LeakyReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
@@ -139,48 +137,84 @@ class CNN(nn.Module):
 class CNNModelVariant1(nn.Module):
     def __init__(self):
         super(CNNModelVariant1, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
-        self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-        self.fc1 = nn.Linear(128 * 6 * 6, 128)
-        self.fc2 = nn.Linear(128, 4)
-        self.dropout = nn.Dropout(0.25)
-    
+        self.conv_layer = nn.Sequential(
+            nn.Conv2d(in_channels=1, out_channels=48, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(48),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=48, out_channels=48, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(48),
+            nn.LeakyReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+
+            # Commented out 2 out of 4 convolutional layers (as well as BatchNorm, LeakyReLU and MaxPool2d)
+
+            #nn.Conv2d(in_channels=48, out_channels=64, kernel_size=3, padding=1),
+            #nn.BatchNorm2d(64),
+            #nn.LeakyReLU(inplace=True),
+            #nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
+            #nn.BatchNorm2d(64),
+            #nn.LeakyReLU(inplace=True),
+            #nn.MaxPool2d(kernel_size=2, stride=2),
+        )
+        self.fc_layer = nn.Sequential(
+            nn.Dropout(p=0.1),
+            #nn.Linear(12 * 12 * 64, 1000), # Commented out old input for fully connected layer
+            nn.Linear(24 * 24 * 48, 1000), # Modified input for fully connected layer based on different number of conv layers
+            nn.ReLU(inplace=True),
+            nn.Linear(1000, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.1),
+            nn.Linear(512, 4)
+        )
+
     def forward(self, x):
         if x.dim() == 2:
             batch_size = x.size(0)
             x = x.view(batch_size, 1, 48, 48)
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        x = self.pool(F.relu(self.conv3(x)))
-        x = x.view(-1, 128 * 6 * 6)
-        x = F.relu(self.fc1(x))
-        x = self.dropout(x)
-        x = self.fc2(x)
+        x = self.conv_layer(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc_layer(x)
         return x
 
 # Variant 2: Experiment with Different Kernel Sizes
 class CNNModelVariant2(nn.Module):
     def __init__(self):
         super(CNNModelVariant2, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=5, padding=2)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=5, padding=2)
-        self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-        self.fc1 = nn.Linear(64 * 12 * 12, 128)
-        self.fc2 = nn.Linear(128, 4)
-        self.dropout = nn.Dropout(0.25)
-    
+        kernelsize=5 # Edit Kernel Size for convolutional layers (not MaxPool2d layer)
+        self.conv_layer = nn.Sequential(
+            nn.Conv2d(in_channels=1, out_channels=48, kernel_size=kernelsize, stride=1, padding=1),
+            nn.BatchNorm2d(48),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=48, out_channels=48, kernel_size=kernelsize, stride=1, padding=1),
+            nn.BatchNorm2d(48),
+            nn.LeakyReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(in_channels=48, out_channels=64, kernel_size=kernelsize, stride=1, padding=1),
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=kernelsize, stride=1, padding=1),
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+        )
+        self.fc_layer = nn.Sequential(
+            nn.Dropout(p=0.1),
+           # nn.Linear(12 * 12 * 64, 1000), # Commented out old input for fully connected layer
+            nn.Linear(9 * 9 * 64, 1000), # Modified input for fully connected layer based on different kernel size
+            nn.ReLU(inplace=True),
+            nn.Linear(1000, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.1),
+            nn.Linear(512, 4)
+        )
+
     def forward(self, x):
         if x.dim() == 2:
             batch_size = x.size(0)
             x = x.view(batch_size, 1, 48, 48)
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        x = x.view(-1, 64 * 12 * 12)
-        x = F.relu(self.fc1(x))
-        x = self.dropout(x)
-        x = self.fc2(x)
+        x = self.conv_layer(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc_layer(x)
         return x
 
 def train_models(model, model_name):
@@ -197,8 +231,6 @@ def train_models(model, model_name):
         avg_loss_epoch = 0
         total_batches = 0
         for images, labels in train_loader:
-            if isinstance(model, MultiLayerFCNet):
-                images = images.view(-1, 48 * 48)
             outputs = model(images)
             loss = criterion(outputs, labels)
             optimizer.zero_grad()
@@ -215,8 +247,6 @@ def train_models(model, model_name):
         val_loss = 0
         with torch.no_grad():
             for images, labels in val_loader:
-                if isinstance(model, MultiLayerFCNet):
-                    images = images.view(-1, 48 * 48)
                 outputs = model(images)
                 loss = criterion(outputs, labels)
                 val_loss += loss.item()
@@ -240,8 +270,11 @@ def train_models(model, model_name):
             break
     
     # Save the validation loss
-    with open(os.path.join("models", model_name, "validation_loss.txt"), "w") as f:
-        f.write(str(best_val_loss))
+    #with open(os.path.join("models", model_name, "validation_loss.txt"), "w") as f:
+    #    f.write(str(best_val_loss))
+    validation_loss_csv_path = os.path.join("models", model_name, "validation_loss.csv")
+    val_loss_df = pd.DataFrame({"Validation Loss": [best_val_loss]})
+    val_loss_df.to_csv(validation_loss_csv_path, index=False)
     
     # Evaluate the model on test data
     model.load_state_dict(torch.load(best_model_path))
@@ -257,10 +290,7 @@ def train_models(model, model_name):
 
     for i in range(len(test_dataset)):
         image, label = test_dataset[i]
-        if isinstance(model, MultiLayerFCNet):
-            image = image.view(-1, 48 * 48)
-        else:
-            image = image.unsqueeze(0)
+        image = image.unsqueeze(0)
         output = model(image)
         predicted = torch.argmax(output, dim=1)
         results_df.loc[i, 'Predicted Label'] = classes[predicted.item()]
@@ -315,39 +345,70 @@ if variant2_model_val_loss < best_val_loss_overall:
 
 print(f"Best model overall: {best_model_name} with validation loss: {best_val_loss_overall:.4f}")
 
-# Save the best model to models/best/
-best_model_save_path = os.path.join("models", "best", f"{best_model_name}_best.pth")
-os.makedirs(os.path.dirname(best_model_save_path), exist_ok=True)
-torch.save(best_model_overall.state_dict(), best_model_save_path)
-print(f"Best model saved at: {best_model_save_path}")
-
-# Compare with existing best model in models/best/
-existing_best_model_path = os.path.join("models", "best")
-if os.path.exists(existing_best_model_path):
+# Compare with existing best model in models/best/, saving only the best model and its associated results/accuracy/validation loss
+if os.path.exists("models\\best"):
+    best_model_save_path = os.path.join("models", "best", f"{best_model_name}_best.pth")
+    os.makedirs(os.path.dirname(best_model_save_path), exist_ok=True)
+    existing_best_model_path = os.path.join("models", "best")
     existing_best_models = [f for f in os.listdir(existing_best_model_path) if f.endswith("_best.pth")]
+    print(existing_best_models)
     
     for existing_best_model_file in existing_best_models:
         existing_best_model_name = existing_best_model_file.replace('_best.pth', '')
-        existing_best_model_val_loss_path = os.path.join("models", existing_best_model_name, "validation_loss.txt")
+        existing_best_model_val_loss_path = os.path.join("models", existing_best_model_name, "validation_loss.csv")
         
         if os.path.exists(existing_best_model_val_loss_path):
-            with open(existing_best_model_val_loss_path, "r") as f:
-                existing_best_val_loss = float(f.read())
-            
+            with open(existing_best_model_val_loss_path, mode='r', newline='') as file:
+                reader = csv.reader(file)
+                rows = list(reader)
+                # Assuming the first row is the header and we want the second cell in the first column
+                if len(rows) > 1:
+                    existing_best_val_loss = float(rows[1][0])  # First column, second cell
+                else:
+                    raise IndexError("The CSV file does not have enough rows")
             if best_val_loss_overall < existing_best_val_loss:
                 os.remove(os.path.join("models", "best", existing_best_model_file))
                 torch.save(best_model_overall.state_dict(), best_model_save_path)
+
+                # Save the best model's results and accuracy
+                best_results_csv_path = os.path.join("models", best_model_name, "results.csv")
+                best_results_df = pd.read_csv(best_results_csv_path)
+                best_results_df.to_csv(os.path.join("models", "best", "results.csv"), index=False)
+
+                best_accuracy_csv_path = os.path.join("models", best_model_name, "accuracy.csv")
+                accuracy_df = pd.read_csv(best_accuracy_csv_path)
+                accuracy_df.to_csv(os.path.join("models", "best", "accuracy.csv"), index=False)
+
+                best_model_validation_loss_csv_path = os.path.join("models", best_model_name, "validation_loss.csv")
+                val_loss_df = pd.read_csv(best_model_validation_loss_csv_path)
+                val_loss_df.to_csv(os.path.join("models", "best", "validation_loss.csv"), index=False)
+
+                print(f"Best model and related files saved in: {best_model_save_path}")
                 print(f"Best model saved at: {best_model_save_path}")
             elif best_val_loss_overall == existing_best_val_loss:
                 torch.save(best_model_overall.state_dict(), best_model_save_path)
                 print(f"Tie! Both models saved at: {best_model_save_path}")
             else:
-                os.remove(best_model_save_path)
                 print(f"Existing best model remains: {existing_best_model_name} with validation loss: {existing_best_val_loss:.4f}")
                 break
 else:
+    best_model_save_path = os.path.join("models", "best", f"{best_model_name}_best.pth")
+    os.makedirs(os.path.dirname(best_model_save_path), exist_ok=True)
     torch.save(best_model_overall.state_dict(), best_model_save_path)
-    print(f"Best model saved at: {best_model_save_path}")
+    # Save the best model's results and accuracy
+    best_results_csv_path = os.path.join("models", best_model_name, "results.csv")
+    best_results_df = pd.read_csv(best_results_csv_path)
+    best_results_df.to_csv(os.path.join("models", "best", "results.csv"), index=False)
+
+    best_accuracy_csv_path = os.path.join("models", best_model_name, "accuracy.csv")
+    accuracy_df = pd.read_csv(best_accuracy_csv_path)
+    accuracy_df.to_csv(os.path.join("models", "best", "accuracy.csv"), index=False)
+
+    best_model_validation_loss_csv_path = os.path.join("models", best_model_name, "validation_loss.csv")
+    val_loss_df = pd.read_csv(best_model_validation_loss_csv_path)
+    val_loss_df.to_csv(os.path.join("models", "best", "validation_loss.csv"), index=False)
+
+    print(f"Best model and related files saved in: {best_model_save_path}")
 
 ### Visualization section
 # Plot some example images with their predicted labels
@@ -369,9 +430,6 @@ def plot_results(model, test_dataset, x=2, y=5):
         images = images.unsqueeze(1)  # [batch_size, 1, 48, 48]
     elif images.dim() == 4 and images.shape[1] != 1:  # [batch_size, channels, 48, 48]
         images = images[:, :1, :, :]  # Ensure single channel if multiple channels are present
-
-    # Debug: Print the shape of the images tensor
-    print(f"Shape of images tensor: {images.shape}")
 
     # Move images to the same device as the model
     images = images.to(next(model.parameters()).device)

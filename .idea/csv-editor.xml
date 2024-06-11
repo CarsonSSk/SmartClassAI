@@ -52,70 +52,42 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\PART_1\models\model_2024-06-06_01-49-23\accuracy.csv">
+        <entry key="\PART_1\model_evaluation_summary.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\PART_1\models\model_2024-06-06_01-49-23\results.csv">
+        <entry key="\PART_1\models\best\accuracy.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\PART_1\models\model_2024-06-06_01-49-23\test_dataset.csv">
+        <entry key="\PART_1\models\best\results.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\PART_1\models\model_2024-06-06_01-49-23\train_dataset.csv">
+        <entry key="\PART_1\models\best\validation_loss.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\PART_1\models\model_2024-06-06_02-10-03\accuracy.csv">
+        <entry key="\PART_1\models\model_2024-06-10_14-31-43\validation_loss.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\PART_1\models\model_2024-06-06_02-10-03\results.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\PART_1\models\model_2024-06-06_02-12-04\results.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\PART_1\models\model_2024-06-06_02-14-56\results.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\PART_1\models\model_2024-06-06_02-16-39\accuracy.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\PART_1\models\model_2024-06-06_02-16-39\results.csv">
+        <entry key="\PART_1\runFiles\directory_images_data.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

@@ -54,9 +54,13 @@ def evaluate_model(model_dir):
     print_evaluation_results(model_dir, metrics)
     plot_confusion_matrix(results_df, model_dir)
 
-main_model_dir = "model_2024-06-09_01-33-15"
-variant1_model_dir = "variant1_model_2024-06-09_01-34-41"
-variant2_model_dir = "variant2_model_2024-06-09_01-35-05"
+main_model_dir = "model_2024-06-10_14-31-43"
+variant1_model_dir = "variant1_model_2024-06-10_14-33-22"
+variant2_model_dir = "variant2_model_2024-06-10_14-34-03"
+best_model_dir = "best"
+
+#Best model evaluation
+evaluate_model(best_model_dir)
 
 # Main model evaluation
 evaluate_model(main_model_dir)
@@ -67,19 +71,20 @@ evaluate_model(variant2_model_dir)
 
 # Summarize the findings in a table
 def summarize_results():
+    best_metrics = evaluate_and_get_metrics(load_results(best_model_dir))
     main_metrics = evaluate_and_get_metrics(load_results(main_model_dir))
     variant1_metrics = evaluate_and_get_metrics(load_results(variant1_model_dir))
     variant2_metrics = evaluate_and_get_metrics(load_results(variant2_model_dir))
 
     summary_table = pd.DataFrame({
-        'Model': ['Main Model', 'Variant 1', 'Variant 2'],
-        'Accuracy': [main_metrics[0], variant1_metrics[0], variant2_metrics[0]],
-        'Macro Precision': [main_metrics[1], variant1_metrics[1], variant2_metrics[1]],
-        'Macro Recall': [main_metrics[2], variant1_metrics[2], variant2_metrics[2]],
-        'Macro F1': [main_metrics[3], variant1_metrics[3], variant2_metrics[3]],
-        'Micro Precision': [main_metrics[4], variant1_metrics[4], variant2_metrics[4]],
-        'Micro Recall': [main_metrics[5], variant1_metrics[5], variant2_metrics[5]],
-        'Micro F1': [main_metrics[6], variant1_metrics[6], variant2_metrics[6]],
+        'Model': ['Best Model', 'Main Model', 'Variant 1', 'Variant 2'],
+        'Accuracy': [best_metrics[0], main_metrics[0], variant1_metrics[0], variant2_metrics[0]],
+        'Macro Precision': [best_metrics[1], main_metrics[1], variant1_metrics[1], variant2_metrics[1]],
+        'Macro Recall': [best_metrics[2], main_metrics[2], variant1_metrics[2], variant2_metrics[2]],
+        'Macro F1': [best_metrics[3], main_metrics[3], variant1_metrics[3], variant2_metrics[3]],
+        'Micro Precision': [best_metrics[4], main_metrics[4], variant1_metrics[4], variant2_metrics[4]],
+        'Micro Recall': [best_metrics[5], main_metrics[5], variant1_metrics[5], variant2_metrics[5]],
+        'Micro F1': [best_metrics[6], main_metrics[6], variant1_metrics[6], variant2_metrics[6]],
     })
 
     print(summary_table)
