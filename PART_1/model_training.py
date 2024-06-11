@@ -275,6 +275,11 @@ def train_models(model, model_name):
     validation_loss_csv_path = os.path.join("models", model_name, "validation_loss.csv")
     val_loss_df = pd.DataFrame({"Validation Loss": [best_val_loss]})
     val_loss_df.to_csv(validation_loss_csv_path, index=False)
+    #with open(os.path.join("models", model_name, "validation_loss.txt"), "w") as f:
+    #    f.write(str(best_val_loss))
+    validation_loss_csv_path = os.path.join("models", model_name, "validation_loss.csv")
+    val_loss_df = pd.DataFrame({"Validation Loss": [best_val_loss]})
+    val_loss_df.to_csv(validation_loss_csv_path, index=False)
     
     # Evaluate the model on test data
     model.load_state_dict(torch.load(best_model_path))
@@ -356,6 +361,7 @@ if os.path.exists("models\\best"):
     for existing_best_model_file in existing_best_models:
         existing_best_model_name = existing_best_model_file.replace('_best.pth', '')
         existing_best_model_val_loss_path = os.path.join("models", existing_best_model_name, "validation_loss.csv")
+        existing_best_model_val_loss_path = os.path.join("models", existing_best_model_name, "validation_loss.csv")
         
         if os.path.exists(existing_best_model_val_loss_path):
             with open(existing_best_model_val_loss_path, mode='r', newline='') as file:
@@ -390,8 +396,11 @@ if os.path.exists("models\\best"):
                 print(f"Tie! Both models saved at: {best_model_save_path}")
             else:
                 print(f"Existing best model remains: {existing_best_model_name} with validation loss: {existing_best_val_loss:.4f}")
+                print("IF-2")
                 break
 else:
+    best_model_save_path = os.path.join("models", "best", f"{best_model_name}_best.pth")
+    os.makedirs(os.path.dirname(best_model_save_path), exist_ok=True)
     best_model_save_path = os.path.join("models", "best", f"{best_model_name}_best.pth")
     os.makedirs(os.path.dirname(best_model_save_path), exist_ok=True)
     torch.save(best_model_overall.state_dict(), best_model_save_path)
