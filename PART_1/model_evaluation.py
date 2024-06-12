@@ -54,9 +54,9 @@ def evaluate_model(model_dir):
     print_evaluation_results(model_dir, metrics)
     plot_confusion_matrix(results_df, model_dir)
 
-main_model_dir = "model_2024-06-10_14-31-43"
-variant1_model_dir = "variant1_model_2024-06-10_14-33-22"
-variant2_model_dir = "variant2_model_2024-06-10_14-34-03"
+main_model_dir = "model_2024-06-11_20-52-37"
+variant1_model_dir = "variant1_model_2024-06-11_20-54-12"
+variant2_model_dir = "variant2_model_2024-06-11_20-57-21"
 best_model_dir = "best"
 
 #Best model evaluation

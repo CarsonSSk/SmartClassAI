@@ -7,6 +7,7 @@ import pandas as pd
 from PIL import Image
 import numpy as np
 from data_cleaning import DataCleaning
+#from model_training import CNN, CNNModelVariant1, CNNModelVariant2
 import csv
 
 image_path = "runFiles/PrivateTest_46114477.jpg"  # Specify the path to your image here
@@ -15,6 +16,47 @@ output_dir="runFiles/runCleanedImages"
 directory_csv_file = os.path.join("runFiles", 'directory_images_data.csv')
 
 cleaner=DataCleaning(directory_csv_file, output_dir, log_file="runFiles/run_cleaned_image_data.csv", setupOutputDir=False, setupLog=False)
+
+class CNNModelVariant2(nn.Module):
+    def __init__(self):
+        super(CNNModelVariant2, self).__init__()
+        kernelsize=5 # Edit Kernel Size for convolutional layers (not MaxPool2d layer)
+        self.conv_layer = nn.Sequential(
+            nn.Conv2d(in_channels=1, out_channels=48, kernel_size=kernelsize, stride=1, padding=1),
+            nn.BatchNorm2d(48),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=48, out_channels=48, kernel_size=kernelsize, stride=1, padding=1),
+            nn.BatchNorm2d(48),
+            nn.LeakyReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(in_channels=48, out_channels=64, kernel_size=kernelsize, stride=1, padding=1),
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=kernelsize, stride=1, padding=1),
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+        )
+        self.fc_layer = nn.Sequential(
+            nn.Dropout(p=0.1),
+           # nn.Linear(12 * 12 * 64, 1000), # Commented out old input for fully connected layer
+            nn.Linear(9 * 9 * 64, 1000), # Modified input for fully connected layer based on different kernel size
+            nn.ReLU(inplace=True),
+            nn.Linear(1000, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.1),
+            nn.Linear(512, 4)
+        )
+
+    def forward(self, x):
+        if x.dim() == 2:
+            batch_size = x.size(0)
+            x = x.view(batch_size, 1, 48, 48)
+        x = self.conv_layer(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc_layer(x)
+        return x
+
 
 # Store images to predict in CSV
 data = []
@@ -55,46 +97,17 @@ classes = ['happy', 'angry', 'neutral', 'engaged']
 
 # Normalization values for our dataset
 normalize = transforms.Normalize(mean=[0.5], std=[0.5])
-transform = transforms.Compose([transforms.ToTensor(), normalize])
+#transform = transforms.Compose([transforms.ToTensor(), normalize])
+transform = transforms.Compose([
+    transforms.ToPILImage(),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomRotation(10),
+    transforms.RandomCrop(48, padding=4),
+    transforms.ToTensor(),
+    normalize
+])
 
 # CNN (Based on CIFAR10 example in Lab 7)
-class CNN(nn.Module):
-    def __init__(self):
-        super(CNN, self).__init__()
-        self.conv_layer = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=48, kernel_size=3, padding=1),
-            nn.BatchNorm2d(48),
-            nn.LeakyReLU(inplace=True),
-            nn.Conv2d(in_channels=48, out_channels=48, kernel_size=3, padding=1),
-            nn.BatchNorm2d(48),
-            nn.LeakyReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(in_channels=48, out_channels=64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.LeakyReLU(inplace=True),
-            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.LeakyReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-        )
-        self.fc_layer = nn.Sequential(
-            nn.Dropout(p=0.1),
-            nn.Linear(12 * 12 * 64, 1000),
-            nn.ReLU(inplace=True),
-            nn.Linear(1000, 512),
-            nn.ReLU(inplace=True),
-            nn.Dropout(p=0.1),
-            nn.Linear(512, 4)
-        )
-
-    def forward(self, x):
-        if x.dim() == 2:
-            batch_size = x.size(0)
-            x = x.view(batch_size, 1, 48, 48)
-        x = self.conv_layer(x)
-        x = x.view(x.size(0), -1)
-        x = self.fc_layer(x)
-        return x
 
 def load_model(model_path, model_class):
     model = model_class()
@@ -149,7 +162,7 @@ model_path = find_model_file(model_dir)  # Dynamically find the model file
 
 if model_path:
     print(f"Found model file: {model_path}")
-    model_class = CNN  # Specify the model class here
+    model_class = CNNModelVariant2  # Specify the model class here
 
     # Load the model
     model = load_model(model_path, model_class)

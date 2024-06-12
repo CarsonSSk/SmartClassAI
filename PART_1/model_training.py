@@ -2,7 +2,6 @@ import os
 import torch
 import torch.nn as nn
 import torch.utils.data as td
-import torch.nn.functional as F
 import pandas as pd
 from PIL import Image
 import numpy as np
@@ -60,9 +59,18 @@ def LoadData(data):
     data_y = np.array(data_y)
     return data_x, data_y
 
-# Normalization values for our dataset
+# Normalization values for our dataset + Data augmentation techniques
+# Data augmentation techniques used: random horizontal flip, random rotation, random crop
 normalize = transforms.Normalize(mean=[0.5], std=[0.5])
-transform = transforms.Compose([transforms.ToTensor(), normalize])
+#transform = transforms.Compose([transforms.ToTensor(), normalize]) # Without data augmentation techniques
+transform = transforms.Compose([
+    transforms.ToPILImage(),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomRotation(10),
+    transforms.RandomCrop(48, padding=4),
+    transforms.ToTensor(),
+    normalize
+])
 
 # Custom dataset class to handle the data loading with our specific data structure
 class CustomDataset(torch.utils.data.Dataset):
