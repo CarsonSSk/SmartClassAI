@@ -141,7 +141,7 @@ class CNN(nn.Module):
         x = self.fc_layer(x)
         return x
 
-# Variant 1: Vary the Number of Convolutional Layers
+# Variant 1: Vary the Number of Convolutional Layers (2 layers -> 63.67% acc and 6 layers -> 69.33% acc)
 class CNNModelVariant1(nn.Module):
     def __init__(self):
         super(CNNModelVariant1, self).__init__()
@@ -154,7 +154,7 @@ class CNNModelVariant1(nn.Module):
             nn.LeakyReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
 
-            # Commented out 2 out of 4 convolutional layers (as well as BatchNorm, LeakyReLU and MaxPool2d)
+            # Commented out 4 convolutional layers (as well as BatchNorm, LeakyReLU and MaxPool2d)
 
             #nn.Conv2d(in_channels=48, out_channels=64, kernel_size=3, padding=1),
             #nn.BatchNorm2d(64),
@@ -162,11 +162,18 @@ class CNNModelVariant1(nn.Module):
             #nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
             #nn.BatchNorm2d(64),
             #nn.LeakyReLU(inplace=True),
+            #nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1),
+            #nn.BatchNorm2d(128),
+            #nn.LeakyReLU(inplace=True),
+            #nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1),
+            #nn.BatchNorm2d(128),
+            #nn.LeakyReLU(inplace=True),
             #nn.MaxPool2d(kernel_size=2, stride=2),
         )
         self.fc_layer = nn.Sequential(
             nn.Dropout(p=0.1),
             #nn.Linear(12 * 12 * 64, 1000), # Commented out old input for fully connected layer
+            #nn.Linear(6 * 6 * 128, 1000), # for 6 layers
             nn.Linear(24 * 24 * 48, 1000), # Modified input for fully connected layer based on different number of conv layers
             nn.ReLU(inplace=True),
             nn.Linear(1000, 512),
@@ -184,10 +191,12 @@ class CNNModelVariant1(nn.Module):
         x = self.fc_layer(x)
         return x
 
-# Variant 2: Experiment with Different Kernel Sizes
+
+# Variant 2: Experiment with Different Kernel Sizes (2x2 kernel size -> 60.00% acc and 5x5 kernel size -> 62.00% acc)
 class CNNModelVariant2(nn.Module):
     def __init__(self):
         super(CNNModelVariant2, self).__init__()
+        #kernelsize = 2  # Set the kernel size to 2x2
         kernelsize=5 # Edit Kernel Size for convolutional layers (not MaxPool2d layer)
         self.conv_layer = nn.Sequential(
             nn.Conv2d(in_channels=1, out_channels=48, kernel_size=kernelsize, stride=1, padding=1),
@@ -208,7 +217,8 @@ class CNNModelVariant2(nn.Module):
         self.fc_layer = nn.Sequential(
             nn.Dropout(p=0.1),
            # nn.Linear(12 * 12 * 64, 1000), # Commented out old input for fully connected layer
-            nn.Linear(9 * 9 * 64, 1000), # Modified input for fully connected layer based on different kernel size
+           # nn.Linear(13 * 13 * 64, 1000),  # Adjusted for different kernel size 2x2
+            nn.Linear(9 * 9 * 64, 1000), # Modified input for fully connected layer based on different kernel size 5x5
             nn.ReLU(inplace=True),
             nn.Linear(1000, 512),
             nn.ReLU(inplace=True),
@@ -224,6 +234,7 @@ class CNNModelVariant2(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.fc_layer(x)
         return x
+
 
 def train_models(model, model_name):
     criterion = torch.nn.CrossEntropyLoss()
@@ -329,6 +340,14 @@ best_model_overall = None
 best_val_loss_overall = float('inf')
 best_model_name = ""
 
+
+# Dictionaries to store the best model for each type
+best_models = {
+    "main": {"model": None, "val_loss": float('inf'), "name": ""},
+    "variant1": {"model": None, "val_loss": float('inf'), "name": ""},
+    "variant2": {"model": None, "val_loss": float('inf'), "name": ""}
+}
+
 # Train and evaluate the main model
 main_model_name = f"model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
 main_model = CNN()
@@ -337,6 +356,10 @@ if main_model_val_loss < best_val_loss_overall:
     best_val_loss_overall = main_model_val_loss
     best_model_overall = main_model
     best_model_name = main_model_name
+if main_model_val_loss < best_models["main"]["val_loss"]:
+    best_models["main"]["val_loss"] = main_model_val_loss
+    best_models["main"]["model"] = main_model
+    best_models["main"]["name"] = main_model_name
 
 # Train and evaluate variant 1
 variant1_model_name = f"variant1_model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
@@ -346,6 +369,10 @@ if variant1_model_val_loss < best_val_loss_overall:
     best_val_loss_overall = variant1_model_val_loss
     best_model_overall = variant1_model
     best_model_name = variant1_model_name
+if variant1_model_val_loss < best_models["variant1"]["val_loss"]:
+    best_models["variant1"]["val_loss"] = variant1_model_val_loss
+    best_models["variant1"]["model"] = variant1_model
+    best_models["variant1"]["name"] = variant1_model_name
 
 # Train and evaluate variant 2
 variant2_model_name = f"variant2_model_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
@@ -355,77 +382,62 @@ if variant2_model_val_loss < best_val_loss_overall:
     best_val_loss_overall = variant2_model_val_loss
     best_model_overall = variant2_model
     best_model_name = variant2_model_name
+if variant2_model_val_loss < best_models["variant2"]["val_loss"]:
+    best_models["variant2"]["val_loss"] = variant2_model_val_loss
+    best_models["variant2"]["model"] = variant2_model
+    best_models["variant2"]["name"] = variant2_model_name
 
 print(f"Best model overall: {best_model_name} with validation loss: {best_val_loss_overall:.4f}")
 
-# Compare with existing best model in models/best/, saving only the best model and its associated results/accuracy/validation loss
-if os.path.exists("models\\best"):
-    best_model_save_path = os.path.join("models", "best", f"{best_model_name}_best.pth")
-    os.makedirs(os.path.dirname(best_model_save_path), exist_ok=True)
-    existing_best_model_path = os.path.join("models", "best")
-    existing_best_models = [f for f in os.listdir(existing_best_model_path) if f.endswith("_best.pth")]
-    print(existing_best_models)
-    
-    for existing_best_model_file in existing_best_models:
-        existing_best_model_name = existing_best_model_file.replace('_best.pth', '')
-        existing_best_model_val_loss_path = os.path.join("models", existing_best_model_name, "validation_loss.csv")
-        existing_best_model_val_loss_path = os.path.join("models", existing_best_model_name, "validation_loss.csv")
-        
-        if os.path.exists(existing_best_model_val_loss_path):
-            with open(existing_best_model_val_loss_path, mode='r', newline='') as file:
-                reader = csv.reader(file)
-                rows = list(reader)
-                # Assuming the first row is the header and we want the second cell in the first column
-                if len(rows) > 1:
-                    existing_best_val_loss = float(rows[1][0])  # First column, second cell
-                else:
-                    raise IndexError("The CSV file does not have enough rows")
-            if best_val_loss_overall < existing_best_val_loss:
-                os.remove(os.path.join("models", "best", existing_best_model_file))
-                torch.save(best_model_overall.state_dict(), best_model_save_path)
+# Function to save the best model and its associated files
+def save_best_model(best_model, model_name, folder_name):
+    model_save_path = os.path.join("models", folder_name, f"{model_name}_best.pth")
+    os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
+    torch.save(best_model.state_dict(), model_save_path)
 
-                # Save the best model's results and accuracy
-                best_results_csv_path = os.path.join("models", best_model_name, "results.csv")
-                best_results_df = pd.read_csv(best_results_csv_path)
-                best_results_df.to_csv(os.path.join("models", "best", "results.csv"), index=False)
-
-                best_accuracy_csv_path = os.path.join("models", best_model_name, "accuracy.csv")
-                accuracy_df = pd.read_csv(best_accuracy_csv_path)
-                accuracy_df.to_csv(os.path.join("models", "best", "accuracy.csv"), index=False)
-
-                best_model_validation_loss_csv_path = os.path.join("models", best_model_name, "validation_loss.csv")
-                val_loss_df = pd.read_csv(best_model_validation_loss_csv_path)
-                val_loss_df.to_csv(os.path.join("models", "best", "validation_loss.csv"), index=False)
-
-                print(f"Best model and related files saved in: {best_model_save_path}")
-                print(f"Best model saved at: {best_model_save_path}")
-            elif best_val_loss_overall == existing_best_val_loss:
-                torch.save(best_model_overall.state_dict(), best_model_save_path)
-                print(f"Tie! Both models saved at: {best_model_save_path}")
-            else:
-                print(f"Existing best model remains: {existing_best_model_name} with validation loss: {existing_best_val_loss:.4f}")
-                print("IF-2")
-                break
-else:
-    best_model_save_path = os.path.join("models", "best", f"{best_model_name}_best.pth")
-    os.makedirs(os.path.dirname(best_model_save_path), exist_ok=True)
-    best_model_save_path = os.path.join("models", "best", f"{best_model_name}_best.pth")
-    os.makedirs(os.path.dirname(best_model_save_path), exist_ok=True)
-    torch.save(best_model_overall.state_dict(), best_model_save_path)
     # Save the best model's results and accuracy
-    best_results_csv_path = os.path.join("models", best_model_name, "results.csv")
-    best_results_df = pd.read_csv(best_results_csv_path)
-    best_results_df.to_csv(os.path.join("models", "best", "results.csv"), index=False)
+    results_csv_path = os.path.join("models", model_name, "results.csv")
+    results_df = pd.read_csv(results_csv_path)
+    results_df.to_csv(os.path.join("models", folder_name, "results.csv"), index=False)
 
-    best_accuracy_csv_path = os.path.join("models", best_model_name, "accuracy.csv")
-    accuracy_df = pd.read_csv(best_accuracy_csv_path)
-    accuracy_df.to_csv(os.path.join("models", "best", "accuracy.csv"), index=False)
+    accuracy_csv_path = os.path.join("models", model_name, "accuracy.csv")
+    accuracy_df = pd.read_csv(accuracy_csv_path)
+    accuracy_df.to_csv(os.path.join("models", folder_name, "accuracy.csv"), index=False)
 
-    best_model_validation_loss_csv_path = os.path.join("models", best_model_name, "validation_loss.csv")
-    val_loss_df = pd.read_csv(best_model_validation_loss_csv_path)
-    val_loss_df.to_csv(os.path.join("models", "best", "validation_loss.csv"), index=False)
+    validation_loss_csv_path = os.path.join("models", model_name, "validation_loss.csv")
+    val_loss_df = pd.read_csv(validation_loss_csv_path)
+    val_loss_df.to_csv(os.path.join("models", folder_name, "validation_loss.csv"), index=False)
 
-    print(f"Best model and related files saved in: {best_model_save_path}")
+    print(f"Best model and related files saved in: {model_save_path}")
+
+# Save the best model overall
+if not os.path.exists("models/best/overall"):
+    os.makedirs("models/best/overall")
+    save_best_model(best_model_overall, best_model_name, "best/overall")
+else:
+    existing_best_model_path = os.path.join("models", "best", "overall", f"{best_model_name}_best.pth")
+    existing_best_model_val_loss_path = os.path.join("models", "best", "overall", "validation_loss.csv")
+    
+    if os.path.exists(existing_best_model_val_loss_path):
+        with open(existing_best_model_val_loss_path, mode='r', newline='') as file:
+            reader = csv.reader(file)
+            rows = list(reader)
+            if len(rows) > 1:
+                existing_best_val_loss = float(rows[1][0])
+            else:
+                raise IndexError("The CSV file does not have enough rows")
+        if best_val_loss_overall < existing_best_val_loss:
+            os.remove(existing_best_model_path)
+            save_best_model(best_model_overall, best_model_name, "best/overall")
+
+# Save the best base model
+save_best_model(best_models["main"]["model"], best_models["main"]["name"], "best/baseModel")
+
+# Save the best variant 1 model
+save_best_model(best_models["variant1"]["model"], best_models["variant1"]["name"], "best/variant1")
+
+# Save the best variant 2 model
+save_best_model(best_models["variant2"]["model"], best_models["variant2"]["name"], "best/variant2")
 
 ### Visualization section
 # Plot some example images with their predicted labels
