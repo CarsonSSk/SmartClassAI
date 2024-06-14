@@ -23,7 +23,7 @@ hidden_size = 50  # Number of hidden units
 output_size = 4  # Number of output classes
 num_epochs = 10  # Minimum number of training epochs
 learning_rate = 0.005  # Learning rate
-patience = 5  # Early stopping patience
+patience = 3  # Early stopping patience
 randomseed = 2024 # Set the random seed to a specific integer. Changing the seed will yield different model results.
 
 def set_seed(seed): # Random seed function to set the seeds to all PyTorch/Numpy randomization functions used in the training process, ensuring reproducibility
@@ -104,28 +104,40 @@ val_loader = td.DataLoader(val_dataset, batch_size=20, shuffle=False)
 test_loader = td.DataLoader(test_dataset, batch_size=20, shuffle=False)
 
 # CNN (Based on CIFAR10 example in Lab 7)
-class CNN(nn.Module):
+class CNN(nn.Module): # 8 convolutional layers, 2 pooling layers, 2 FC layers, kernel size=5
     def __init__(self):
         super(CNN, self).__init__()
         self.conv_layer = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=48, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(in_channels=1, out_channels=48, kernel_size=5, stride=1, padding=1),
             nn.BatchNorm2d(48),
             nn.LeakyReLU(inplace=True),
-            nn.Conv2d(in_channels=48, out_channels=48, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(in_channels=48, out_channels=48, kernel_size=5, stride=1, padding=1),
             nn.BatchNorm2d(48),
             nn.LeakyReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(in_channels=48, out_channels=64, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(in_channels=48, out_channels=64, kernel_size=5, stride=1, padding=1),
             nn.BatchNorm2d(64),
             nn.LeakyReLU(inplace=True),
-            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=5, stride=1, padding=1),
             nn.BatchNorm2d(64),
             nn.LeakyReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=5, padding=1),
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=5, padding=1),
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=5, stride=1, padding=1),
+            nn.BatchNorm2d(128),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=5, stride=1, padding=1),
+            nn.BatchNorm2d(128),
+            nn.LeakyReLU(inplace=True),
         )
         self.fc_layer = nn.Sequential(
             nn.Dropout(p=0.1),
-            nn.Linear(12 * 12 * 64, 1000),
+            nn.Linear(1 * 1 * 128, 1000),
             nn.ReLU(inplace=True),
             nn.Linear(1000, 512),
             nn.ReLU(inplace=True),
@@ -142,7 +154,7 @@ class CNN(nn.Module):
         return x
 
 # Variant 1: Vary the Number of Convolutional Layers (2 layers -> 63.67% acc and 6 layers -> 69.33% acc)
-class CNNModelVariant1(nn.Module):
+class CNNModelVariant1(nn.Module): # 10 convolutional layers, 4 pooling layers, 2 FC layers
     def __init__(self):
         super(CNNModelVariant1, self).__init__()
         self.conv_layer = nn.Sequential(
@@ -156,25 +168,40 @@ class CNNModelVariant1(nn.Module):
 
             # Commented out 4 convolutional layers (as well as BatchNorm, LeakyReLU and MaxPool2d)
 
-            #nn.Conv2d(in_channels=48, out_channels=64, kernel_size=3, padding=1),
-            #nn.BatchNorm2d(64),
-            #nn.LeakyReLU(inplace=True),
-            #nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
-            #nn.BatchNorm2d(64),
-            #nn.LeakyReLU(inplace=True),
-            #nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1),
-            #nn.BatchNorm2d(128),
-            #nn.LeakyReLU(inplace=True),
-            #nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1),
-            #nn.BatchNorm2d(128),
-            #nn.LeakyReLU(inplace=True),
-            #nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(in_channels=48, out_channels=64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(128),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(128),
+            nn.LeakyReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(256),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(256),
+            nn.LeakyReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(in_channels=256, out_channels=512, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(512),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(512),
+            nn.LeakyReLU(inplace=True),
+            #nn.MaxPool2d(kernel_size=2, stride=2)
         )
         self.fc_layer = nn.Sequential(
             nn.Dropout(p=0.1),
             #nn.Linear(12 * 12 * 64, 1000), # Commented out old input for fully connected layer
-            #nn.Linear(6 * 6 * 128, 1000), # for 6 layers
-            nn.Linear(24 * 24 * 48, 1000), # Modified input for fully connected layer based on different number of conv layers
+            nn.Linear(3 * 3 * 512, 1000), # for 6 layers
+            #nn.Linear(24 * 24 * 48, 1000), # Modified input for fully connected layer based on different number of conv layers
             nn.ReLU(inplace=True),
             nn.Linear(1000, 512),
             nn.ReLU(inplace=True),
@@ -193,11 +220,11 @@ class CNNModelVariant1(nn.Module):
 
 
 # Variant 2: Experiment with Different Kernel Sizes (2x2 kernel size -> 60.00% acc and 5x5 kernel size -> 62.00% acc)
-class CNNModelVariant2(nn.Module):
+class CNNModelVariant2(nn.Module): # 4 convolutional layers, kernel size = 2
     def __init__(self):
         super(CNNModelVariant2, self).__init__()
-        #kernelsize = 2  # Set the kernel size to 2x2
-        kernelsize=5 # Edit Kernel Size for convolutional layers (not MaxPool2d layer)
+        kernelsize = 2  # Set the kernel size to 2x2
+        #kernelsize=5 # Edit Kernel Size for convolutional layers (not MaxPool2d layer)
         self.conv_layer = nn.Sequential(
             nn.Conv2d(in_channels=1, out_channels=48, kernel_size=kernelsize, stride=1, padding=1),
             nn.BatchNorm2d(48),
@@ -216,9 +243,10 @@ class CNNModelVariant2(nn.Module):
         )
         self.fc_layer = nn.Sequential(
             nn.Dropout(p=0.1),
-           # nn.Linear(12 * 12 * 64, 1000), # Commented out old input for fully connected layer
-           # nn.Linear(13 * 13 * 64, 1000),  # Adjusted for different kernel size 2x2
-            nn.Linear(9 * 9 * 64, 1000), # Modified input for fully connected layer based on different kernel size 5x5
+            #nn.Linear(12 * 12 * 64, 1000), # Commented out old input for fully connected layer
+            #nn.Linear(10 * 10 * 64, 1000) #Adjusted for kernel size 4x4
+            nn.Linear(13 * 13 * 64, 1000),  # Adjusted for different kernel size 2x2
+            #nn.Linear(9 * 9 * 64, 1000), # Modified input for fully connected layer based on different kernel size 5x5
             nn.ReLU(inplace=True),
             nn.Linear(1000, 512),
             nn.ReLU(inplace=True),
