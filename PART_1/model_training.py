@@ -292,6 +292,7 @@ def train_models(model, model_name):
     best_model_path = os.path.join("models", model_name, "best_model.pth")
     os.makedirs(os.path.join("models", model_name), exist_ok=True)
     patience_counter = 0
+    limitHit = 0
     
     for epoch in range(30):  # Setting maximum epochs to 30
         model.train()
@@ -331,19 +332,16 @@ def train_models(model, model_name):
         # Print patience counter after each epoch
         print(f'Patience counter: {patience_counter} / {patience}')
         
-        # Ensure training runs for at least 10 epochs and stops early if patience counter is met
-        if epoch >= 9 and patience_counter >= patience:
+        # Ensure training stops early at epoch 10 if patience counter is met before epoch 10
+        if patience_counter == patience:
+            limitHit +=1
+
+        # Ensure training runs for at least 10 epochs before stopping
+        if epoch >= 9 and limitHit > 0:
             print(f'Early stopping at epoch {epoch+1}')
             break
     
     # Save the validation loss
-    #with open(os.path.join("models", model_name, "validation_loss.txt"), "w") as f:
-    #    f.write(str(best_val_loss))
-    validation_loss_csv_path = os.path.join("models", model_name, "validation_loss.csv")
-    val_loss_df = pd.DataFrame({"Validation Loss": [best_val_loss]})
-    val_loss_df.to_csv(validation_loss_csv_path, index=False)
-    #with open(os.path.join("models", model_name, "validation_loss.txt"), "w") as f:
-    #    f.write(str(best_val_loss))
     validation_loss_csv_path = os.path.join("models", model_name, "validation_loss.csv")
     val_loss_df = pd.DataFrame({"Validation Loss": [best_val_loss]})
     val_loss_df.to_csv(validation_loss_csv_path, index=False)
@@ -387,7 +385,6 @@ def train_models(model, model_name):
 best_model_overall = None
 best_val_loss_overall = float('inf')
 best_model_name = ""
-
 
 # Dictionaries to store the best model for each type
 best_models = {
@@ -442,50 +439,58 @@ def save_best_model(best_model, model_name, folder_name):
     model_save_path = os.path.join("models", folder_name, f"{model_name}_best.pth")
     os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
     torch.save(best_model.state_dict(), model_save_path)
+    
+    # Debug print to confirm the model is being saved
+    print(f"Model state dict saved to: {model_save_path}")
 
     # Save the best model's results and accuracy
     results_csv_path = os.path.join("models", model_name, "results.csv")
-    results_df = pd.read_csv(results_csv_path)
-    results_df.to_csv(os.path.join("models", folder_name, "results.csv"), index=False)
-
     accuracy_csv_path = os.path.join("models", model_name, "accuracy.csv")
-    accuracy_df = pd.read_csv(accuracy_csv_path)
-    accuracy_df.to_csv(os.path.join("models", folder_name, "accuracy.csv"), index=False)
-
     validation_loss_csv_path = os.path.join("models", model_name, "validation_loss.csv")
-    val_loss_df = pd.read_csv(validation_loss_csv_path)
+
+    results_df.to_csv(os.path.join("models", folder_name, "results.csv"), index=False)
+    accuracy_df.to_csv(os.path.join("models", folder_name, "accuracy.csv"), index=False)
     val_loss_df.to_csv(os.path.join("models", folder_name, "validation_loss.csv"), index=False)
 
     print(f"Best model and related files saved in: {model_save_path}")
 
+# Ensure only the best model is saved in each folder
+def update_best_model_folder(best_model, best_val_loss, model_name, folder_name):
+    existing_best_model_path = os.path.join("models", folder_name, f"{model_name}_best.pth")
+    existing_best_model_val_loss_path = os.path.join("models", folder_name, "validation_loss.csv")
+
+    if not os.path.exists(os.path.join("models", folder_name)):
+        os.makedirs(os.path.join("models", folder_name))
+        save_best_model(best_model, model_name, folder_name)
+    else:
+        if os.path.exists(existing_best_model_val_loss_path):
+            with open(existing_best_model_val_loss_path, mode='r', newline='') as file:
+                reader = csv.reader(file)
+                rows = list(reader)
+                if len(rows) > 1:
+                    existing_best_val_loss = float(rows[1][0])
+                else:
+                    raise IndexError("The CSV file does not have enough rows")
+            if best_val_loss < existing_best_val_loss:
+                if os.path.exists(existing_best_model_path):
+                    os.remove(existing_best_model_path)
+                save_best_model(best_model, model_name, folder_name)
+                # Debug print to confirm the existing model is being removed and new one saved
+                print(f"Existing model at {existing_best_model_path} removed. New best model saved.")
+
 # Save the best model overall
-if not os.path.exists("models/best/overall"):
-    os.makedirs("models/best/overall")
-    save_best_model(best_model_overall, best_model_name, "best/overall")
-else:
-    existing_best_model_path = os.path.join("models", "best", "overall", f"{best_model_name}_best.pth")
-    existing_best_model_val_loss_path = os.path.join("models", "best", "overall", "validation_loss.csv")
-    
-    if os.path.exists(existing_best_model_val_loss_path):
-        with open(existing_best_model_val_loss_path, mode='r', newline='') as file:
-            reader = csv.reader(file)
-            rows = list(reader)
-            if len(rows) > 1:
-                existing_best_val_loss = float(rows[1][0])
-            else:
-                raise IndexError("The CSV file does not have enough rows")
-        if best_val_loss_overall < existing_best_val_loss:
-            os.remove(existing_best_model_path)
-            save_best_model(best_model_overall, best_model_name, "best/overall")
+update_best_model_folder(best_model_overall, best_val_loss_overall, best_model_name, "best/overall")
 
 # Save the best base model
-save_best_model(best_models["main"]["model"], best_models["main"]["name"], "best/baseModel")
+update_best_model_folder(best_models["main"]["model"], best_models["main"]["val_loss"], best_models["main"]["name"], "best/baseModel")
 
 # Save the best variant 1 model
-save_best_model(best_models["variant1"]["model"], best_models["variant1"]["name"], "best/variant1")
+update_best_model_folder(best_models["variant1"]["model"], best_models["variant1"]["val_loss"], best_models["variant1"]["name"], "best/variant1")
 
 # Save the best variant 2 model
-save_best_model(best_models["variant2"]["model"], best_models["variant2"]["name"], "best/variant2")
+update_best_model_folder(best_models["variant2"]["model"], best_models["variant2"]["val_loss"], best_models["variant2"]["name"], "best/variant2")
+
+
 
 ### Visualization section
 # Plot some example images with their predicted labels
