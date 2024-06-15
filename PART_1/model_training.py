@@ -24,7 +24,7 @@ output_size = 4  # Number of output classes
 num_epochs = 10  # Minimum number of training epochs
 learning_rate = 0.005  # Learning rate
 patience = 3  # Early stopping patience
-randomseed = 2028 # Set the random seed to a specific integer. Changing the seed will yield different model results.
+randomseed = 2024 # Set the random seed to a specific integer. Changing the seed will yield different model results.
 
 def set_seed(seed): # Random seed function to set the seeds to all PyTorch/Numpy randomization functions used in the training process, ensuring reproducibility
     torch.manual_seed(seed)
@@ -122,23 +122,25 @@ class CNN(nn.Module): # 8 convolutional layers, 2 pooling layers, 2 FC layers, k
             nn.BatchNorm2d(64),
             nn.LeakyReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.LeakyReLU(inplace=True),
-            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.LeakyReLU(inplace=True),
-            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=1),
             nn.BatchNorm2d(128),
             nn.LeakyReLU(inplace=True),
-            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, padding=1),
             nn.BatchNorm2d(128),
             nn.LeakyReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(256),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(256),
+            nn.LeakyReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2)
         )
 
         self.fc_layer = nn.Sequential(
             nn.Dropout(p=0.1),
-            nn.Linear(12 * 12 * 128, 1000),
+            nn.Linear(3 * 3 * 256, 1000),
             nn.ReLU(inplace=True),
             nn.Linear(1000, 512),
             nn.ReLU(inplace=True),
@@ -242,23 +244,23 @@ class CNNModelVariant2(nn.Module): # 8 convolutional layers, kernel size = 2
             nn.BatchNorm2d(64),
             nn.LeakyReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=kernelsize, padding=1),
-            nn.BatchNorm2d(64),
-            nn.LeakyReLU(inplace=True),
-            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=kernelsize, padding=1),
-            nn.BatchNorm2d(64),
-            nn.LeakyReLU(inplace=True),
-            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=kernelsize, stride=1, padding=1),
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=kernelsize, padding=1),
             nn.BatchNorm2d(128),
             nn.LeakyReLU(inplace=True),
-            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=kernelsize, stride=1, padding=1),
+            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=kernelsize, padding=1),
             nn.BatchNorm2d(128),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=128, out_channels=256, kernel_size=kernelsize, stride=1, padding=1),
+            nn.BatchNorm2d(256),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=kernelsize, stride=1, padding=1),
+            nn.BatchNorm2d(256),
             nn.LeakyReLU(inplace=True),
         )
 
         self.fc_layer = nn.Sequential(
             nn.Dropout(p=0.1),
-            nn.Linear(1 * 1 * 128, 1000), #8 layers 5x5
+            nn.Linear(1 * 1 * 256, 1000), #8 layers 5x5
 
             # How to adjust nn.Linear ( x * x * y, 1000) according to kernel size:
             # 1. y =  out_channels of the final convolutional layer/BatchNorm2d parameter.

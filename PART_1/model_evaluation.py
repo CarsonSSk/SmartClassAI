@@ -54,19 +54,11 @@ def evaluate_model(model_dir):
     print_evaluation_results(model_dir, metrics)
     plot_confusion_matrix(results_df, model_dir)
 
-main_model_dir = "model_2024-06-13_23-00-33"
-# og var1 -> 2 layers
-#variant1_model_dir = "variant1_model_2024-06-12_16-21-25"
-# og var2 -> 5x5 kernel size
-#variant2_model_dir = "variant2_model_2024-06-12_16-26-02"
+main_model_dir = "model_2024-06-15_15-44-10"
 
-# test var1 -> 6 layers
-#variant1_model_dir = "variant1_model_2024-06-13_22-34-23"
-#variant 1 10 layers
-variant1_model_dir = "variant1_model_2024-06-13_22-34-23"
+variant1_model_dir = "variant1_model_2024-06-15_15-47-03"
 
-# test var2 -> 2x2 kernel size
-variant2_model_dir = "variant2_model_2024-06-13_21-36-34"
+variant2_model_dir = "variant2_model_2024-06-15_15-49-47"
 
 best_model_dir = "best/overall"
 
