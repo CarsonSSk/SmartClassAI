@@ -61,11 +61,14 @@ main_model_dir = "model_2024-06-13_23-00-33"
 #variant2_model_dir = "variant2_model_2024-06-12_16-26-02"
 
 # test var1 -> 6 layers
+#variant1_model_dir = "variant1_model_2024-06-13_22-34-23"
+#variant 1 10 layers
 variant1_model_dir = "variant1_model_2024-06-13_22-34-23"
-# test var2 -> 2x2 kernel size
-variant2_model_dir = "variant2_model_2024-06-13_22-50-07"
 
-best_model_dir = "best"
+# test var2 -> 2x2 kernel size
+variant2_model_dir = "variant2_model_2024-06-13_21-36-34"
+
+best_model_dir = "best/overall"
 
 #Best model evaluation
 evaluate_model(best_model_dir)
