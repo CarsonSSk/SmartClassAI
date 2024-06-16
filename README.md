@@ -36,6 +36,11 @@ Part 1: Contains all folders and .py scripts.
       - Angry, Happy, Neutral and Engaged folders containing images from their respective class.
   - cleanedData: Folder that contains the images after data cleaning methods were applied, split into the 4 classes.
     - Angry, Happy, Neutral and Engaged folders containing images from their respective class.
+  - models: Directory that contains all models. Inside each of the subfolders which are named after the respective models, you will find: the model paramters file (.pth), CSV files containing the results of that model on the testing dataset, CSV containing the validation loss from the training process, CSV containing the accuracy of the model.
+  - runFiles: Directory containing images that you wish to run a specific model on (single image + batch of images are possible) using run_model.py.
+    - imagesDirectory: Directory where you place the images you want to apply the specific model on.
+    - runCleanedImages: Directory that contains the cleaned version of the images you wish to predict. The cleaned images will be generated automatically based on the same methodology used to clean the training/testing image data.
+    - directory_images_data.csv: CSV file containing the predictions for all the images in the batch that you last ran the run_model.py script on.
   - image_data.csv: CSV that stores the image data from the entire dataset from dataSources (Image Name, Path, Label, Source, CompositeName)
   - image_data_shuffled: CSV that stores the same data as image_data.csv, but in a shuffled order (can be reshuffled with dataset_segmentation.py).
   - cleaned_image_data.csv: CSV that stores the data of the CLEANED images from the entire dataset from cleanedData (Image Name, Path, Label, Source, CompositeName)
@@ -45,7 +50,6 @@ Part 1: Contains all folders and .py scripts.
 - data_cleaning.py: Script that cleans the original data according to cleaning techniques, which are easily modifiable.
 - dataset_segmentation.py: Script that allows random selection of a specified number of images within the original data, for each class, and splits them into 3 datasets (training, validation, testing) to train, validate and test our classification algorithm. Number of images, proportion of images in each split, and randomization seed can be modified by the user. The script also creates a shuffled list of all images.
 - data_visualization.py: Script to visualize the data in many ways: plot the class distribution of images, plot the pixel intensity distributions within each class, sample 15 random images from each class with their corresponding pixel intensity distribution.
-- data_augmentation.py: Generate augmented images from the training dataset (created by dataset_segmentation.py), using augmentation methods in a random combination (flipping, rotation, color, brightness, contrast, sharpness enhancements).
 - README.md: Read me file.
 
 ## Start up dependencies
@@ -123,7 +127,7 @@ d) Model evaluation (with Matplotlib and Sklearn)
 4. Run model_evaluation.py.
 5. There will be pop-ups with the confusion matrices of each evaluated model, sequentially (close a pop-up to move on to the next).  Evaluation metrics for each model will be printed in the output, and saved in model_evaluation_summary.csv, located in the main directory.
 
-d) Run model on custom image / batch of images
+e) Run/apply model on custom image / batch of images
 
 1. First, open the "runFiles" directory in the main directory. Place the single image you wish to predict in this directory, and place the batch of images that you wish to predict in the "imagesDirectory" subdirectory. For the best results, the images must be: square format (will be resized to 48x48 so distortion may happen); can be RGB or grayscale; ideally, as much background should have been cropped out of the image manually in order to center the image on the face.
 2. Open run_model.py.
