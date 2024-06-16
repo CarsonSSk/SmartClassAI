@@ -25,6 +25,7 @@ num_epochs = 10  # Minimum number of training epochs
 learning_rate = 0.005  # Learning rate
 patience = 3  # Early stopping patience
 randomseed = 2024 # Set the random seed to a specific integer. Changing the seed will yield different model results.
+reproducibility = True # Set to false if you want to have different results each run. Can help with generating a high performing model with sequential runs
 
 def set_seed(seed): # Random seed function to set the seeds to all PyTorch/Numpy randomization functions used in the training process, ensuring reproducibility
     torch.manual_seed(seed)
@@ -35,7 +36,8 @@ def set_seed(seed): # Random seed function to set the seeds to all PyTorch/Numpy
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
 
-set_seed(randomseed)
+if reproducibility:
+    set_seed(randomseed)
 
 # Label mapping to facilitate use with PyTorch and tensor formats
 label_mapping = {'happy': 0, 'angry': 1, 'neutral': 2, 'engaged': 3}

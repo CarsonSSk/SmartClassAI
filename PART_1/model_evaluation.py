@@ -4,6 +4,15 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Specify the model names that you wish to evaluate
+main_model_dir = "model_2024-06-15_20-38-03"
+
+variant1_model_dir = "variant1_model_2024-06-15_15-47-03"
+
+variant2_model_dir = "variant2_model_2024-06-15_15-49-47"
+
+best_model_dir = "model_2024-06-15_20-38-03"
+
 base_dir = "models"
 label_mapping = {'happy': 0, 'angry': 1, 'neutral': 2, 'engaged': 3}
 classes = ['happy', 'angry', 'neutral', 'engaged']
@@ -53,14 +62,6 @@ def evaluate_model(model_dir):
     metrics = evaluate_and_get_metrics(results_df)
     print_evaluation_results(model_dir, metrics)
     plot_confusion_matrix(results_df, model_dir)
-
-main_model_dir = "model_2024-06-15_15-44-10"
-
-variant1_model_dir = "variant1_model_2024-06-15_15-47-03"
-
-variant2_model_dir = "variant2_model_2024-06-15_15-49-47"
-
-best_model_dir = "best/overall"
 
 #Best model evaluation
 evaluate_model(best_model_dir)
