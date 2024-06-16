@@ -119,7 +119,7 @@ b) Data visualization (with Matplotlib):
 3. At the end of the script, comment in/out any execution of the plot_class_distribution, plot_sample_images, plot_pixel_intensity_distribution functions that you wish to run or not.
 4. Run data_visualization.py. Plots/sample images will pop-up sequentially. In order to view the next plot/image sample, the current pop-up must be closed to allow the program to continue to run. Plots and sample images can be saved.
 
-### Part 2
+### Part 2 (you can find some of our sample models here: https://drive.google.com/drive/folders/1sjcfjRKqo8a35taRH3w1eqJgEFPJmiDV)
 c) Model training (with PyTorch):
 
 1. First, make sure the PART_1/data/cleanedData folder contains images (the script has been configured to train on the cleaned data).
