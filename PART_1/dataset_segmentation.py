@@ -21,9 +21,9 @@ subset_counts = {
     'neutral': 500,
     'engaged': 500
 }
-train_percent = 0.6 #Define the relative proportions of images in each set
-validation_percent = 0.2
-test_percent = 0.2
+train_percent = 0.7 #Define the relative proportions of images in each set
+validation_percent = 0.15
+test_percent = 0.15
 seed = 2024 #Seed for the randomization
 
 #Function to generate the composite name
