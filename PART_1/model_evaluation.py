@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Specify the model names that you wish to evaluate
-main_model_dir = "model_2024-06-15_20-38-03"
+main_model_dir = "model_2024-06-15_22-54-28"
 
-variant1_model_dir = "variant1_model_2024-06-15_15-47-03"
+variant1_model_dir = "variant1_model_2024-06-15_22-57-12"
 
-variant2_model_dir = "variant2_model_2024-06-15_15-49-47"
+variant2_model_dir = "variant2_model_2024-06-15_22-59-45"
 
-best_model_dir = "model_2024-06-15_20-38-03"
+best_model_dir = "best/overall"
 
 base_dir = "models"
 label_mapping = {'happy': 0, 'angry': 1, 'neutral': 2, 'engaged': 3}
