@@ -106,3 +106,27 @@ b) Data visualization (with Matplotlib):
 2. Open data_visualization.py.
 3. At the end of the script, comment in/out any execution of the plot_class_distribution, plot_sample_images, plot_pixel_intensity_distribution functions that you wish to run or not.
 4. Run data_visualization.py. Plots/sample images will pop-up sequentially. In order to view the next plot/image sample, the current pop-up must be closed to allow the program to continue to run. Plots and sample images can be saved.
+
+c) Model training (with PyTorch):
+
+1. First, make sure the PART_1/data/cleanedData folder contains images (the script has been configured to train on the cleaned data).
+2. Open model_training.py.
+3. At the beginning of the script, establish the parameters for the training: num_epochs (minimum number of epochs, the maximum has been set to 30), learning rate (set to 0.005), patience parameter (how many epochs without decreasing validation loss before the training stops). Possibility to set a random seed if you want to obtain consistent models each run (same results). Set "reproducibility" to false if you want new results on each run of the script. Note: Reproducibility only works when run on the same machine, with the same Python version. Running on two different machines will guarantee DIFFERENT results.
+4. Run model_training.py. Wait for the models to be trained (this step can take up to 15 minutes). Validation losses, epochs, accuracies and model names will be displayed in the output. At the end, there will be pop-ups of sample images from the testing dataset with predictions and their respective correct labels, for each of the three models trained (main, variant 1, variant 2). Each pop-up has to be closed for the next one to show up.
+5. When the script is finished running, all 3 models will be saved in a unique directory in the models folder, as well as their respective prediction results, accuracies, and validation losses, all in csv format. The model is saved as well in .pth format.
+
+d) Model evaluation (with Matplotlib and Sklearn)
+
+1. First, make sure the PART_1/models contains the models you wish to evaluate, with their respective results.csv files (the script has been configured to generate the evaluations from the results csv which is generated when training the model, and then testing it on the testing dataset, all which is done when running model_training.py).
+2. Open model_evaluation.py.
+3. At the beginning, establish the model names of the models that you wish to evaluate. You can simply copy-paste the folder names from the models directory. The model folder must contain the results.csv of the model you wish to evaluate.
+4. Run model_evaluation.py.
+5. There will be pop-ups with the confusion matrices of each evaluated model, sequentially (close a pop-up to move on to the next).  Evaluation metrics for each model will be printed in the output, and saved in model_evaluation_summary.csv, located in the main directory.
+
+d) Run model on custom image / batch of images
+
+1. First, open the "runFiles" directory in the main directory. Place the single image you wish to predict in this directory, and place the batch of images that you wish to predict in the "imagesDirectory" subdirectory. For the best results, the images must be: square format (will be resized to 48x48 so distortion may happen); can be RGB or grayscale; ideally, as much background should have been cropped out of the image manually in order to center the image on the face.
+2. Open run_model.py.
+3. At the beginning, set the paths to the images you wish to predict: image_path for the single image; directory_path for the batch of images. Set the path to the model you wish to use as well as the appropriate model type (0 = main model, 1 = variant 1, 2 = variant 2).
+4. Run run_model.py.
+5. In the output, you will see the prediction of the model for each image's facial emotion. You can check if it is right or wrong! The results for the batch of images will also be saved in a csv file: runFiles/directory_images_data.csv, which contains each of the batch's image name, path, and predicted label. This allows for further analysis of the predictions if desired by the user.
