@@ -450,6 +450,10 @@ def save_best_model(best_model, model_name, folder_name):
     accuracy_csv_path = os.path.join("models", model_name, "accuracy.csv")
     validation_loss_csv_path = os.path.join("models", model_name, "validation_loss.csv")
 
+    results_df = pd.read_csv(results_csv_path)
+    accuracy_df = pd.read_csv(accuracy_csv_path)
+    val_loss_df = pd.read_csv(validation_loss_csv_path)
+
     results_df.to_csv(os.path.join("models", folder_name, "results.csv"), index=False)
     accuracy_df.to_csv(os.path.join("models", folder_name, "accuracy.csv"), index=False)
     val_loss_df.to_csv(os.path.join("models", folder_name, "validation_loss.csv"), index=False)
@@ -491,7 +495,6 @@ update_best_model_folder(best_models["variant1"]["model"], best_models["variant1
 
 # Save the best variant 2 model
 update_best_model_folder(best_models["variant2"]["model"], best_models["variant2"]["val_loss"], best_models["variant2"]["name"], "best/variant2")
-
 
 
 ### Visualization section
