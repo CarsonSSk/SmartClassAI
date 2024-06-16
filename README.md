@@ -1,4 +1,4 @@
-# SmartClass A.I.ssistant - PART 1
+# SmartClass A.I.ssistant - PART 1+2
 
 Welcome to the SmartClass A.I.ssistant project! This project is part of COMP 472 Artificial Intelligence (Summer 2024) and aims to develop a deep learning Convolutional Neural Network (CNN) using PyTorch to analyze images of students in a classroom or online meeting setting and categorize them into distinct states or activities.
 
@@ -19,6 +19,14 @@ In this part, we focus on:
 - Collecting suitable training data
 - Cleaning and labeling the dataset
 - Visualizing the dataset to improve the cleaning methods and diagnose any issues with the dataset
+
+### PART 2: Deep Learning Model Development and Evaluation
+
+In this part, we focus on:
+
+- Creating an AI capable of analyzing facial images for classification using PyTorch
+- Design and train this Convolutional Neural Network on the classes as outlined in Part I
+- Generate a thorough evaluation of our model
 
 ## Table of Contents
 
@@ -111,6 +119,7 @@ b) Data visualization (with Matplotlib):
 3. At the end of the script, comment in/out any execution of the plot_class_distribution, plot_sample_images, plot_pixel_intensity_distribution functions that you wish to run or not.
 4. Run data_visualization.py. Plots/sample images will pop-up sequentially. In order to view the next plot/image sample, the current pop-up must be closed to allow the program to continue to run. Plots and sample images can be saved.
 
+### Part 2
 c) Model training (with PyTorch):
 
 1. First, make sure the PART_1/data/cleanedData folder contains images (the script has been configured to train on the cleaned data).
