@@ -1,83 +1,77 @@
 import logging
-import os
 import pandas as pd
+import matplotlib.pyplot as plt
 from deepface import DeepFace
 from tqdm import tqdm
 
 # Suppress TensorFlow logging
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
-# Base directory containing the sections
-base_dir = "./cleanedData"
+# Paths to the original CSV files
+csv_paths = ["data/train_dataset.csv", "data/validation_dataset.csv", "data/test_dataset.csv"]
 
-# List of sections
-# sections = ["angry", "engaged", "happy", "neutral"]
-sections = ["test"]
+# Corresponding output CSV file paths
+output_csv_paths = ["labeled_images_with_gender_age_train.csv", "labeled_images_with_gender_age_validation.csv",
+                    "labeled_images_with_gender_age_test.csv"]
 
-# Initialize a list to store results
-results = []
+# Loop through each CSV file
+for csv_path, output_csv_path in zip(csv_paths, output_csv_paths):
+    # Read the CSV file
+    df = pd.read_csv(csv_path)
 
-# Loop over each section
-for section in sections:
-    section_dir = os.path.join(base_dir, section)
+    # Initialize lists to store new columns
+    genders = []
+    ages = []
 
-    # Check if the directory exists
-    if os.path.exists(section_dir):
-        # Get all image files in the section directory
-        image_files = [
-            f
-            for f in os.listdir(section_dir)
-            if f.endswith(".jpg") or f.endswith(".png")
-        ]
+    # Loop over each image in the CSV file with a progress bar
+    for index, row in tqdm(df.iterrows(), total=df.shape[0], desc=f"Processing images from {csv_path}"):
+        image_path = row['Path']  # Assuming the path to the image is in the 'Path' column
+        try:
+            # Analyze the image using DeepFace
+            attributes = DeepFace.analyze(image_path, actions=["age", "gender"])
 
-        # change here if we want to label all the files
-        # image_files = image_files[:100]
+            # Check if attributes is a list (multiple faces detected)
+            if isinstance(attributes, list):
+                attributes = attributes[0]  # Consider the first face detected
 
-        # Loop over all images in the section directory with a progress bar
-        for filename in tqdm(image_files, desc=f"Processing {section} images"):
-            image_path = os.path.join(section_dir, filename)
+            # Extract the most probable gender
+            gender = max(attributes['gender'], key=attributes['gender'].get)
 
-            try:
-                # Analyze the image using DeepFace
-                attributes = DeepFace.analyze(image_path, actions=["age", "gender"])
+            # Extract the age value
+            age = attributes.get("age", "error")
 
-                # Check if attributes is a list (multiple faces detected)
-                if isinstance(attributes, list):
-                    attributes = attributes[0]  # Consider the first face detected
+        except ValueError as e:
+            # If a face could not be detected, mark it as an error
+            if "Face could not be detected" in str(e):
+                age = "error"
+                gender = "error"
+            else:
+                # For other exceptions, just log the error message
+                print(f"Error processing {image_path}: {e}")
+                age = "error"
+                gender = "error"
+        except Exception as e:
+            # Log any other exceptions
+            print(f"Unexpected error processing {image_path}: {e}")
+            age = "error"
+            gender = "error"
 
-                # Extract the relevant attributes
-                age = attributes.get("age", "error")
-                gender = attributes.get("gender", "error")
+        # Append the results to the lists
+        ages.append(age)
+        genders.append(gender)
 
-                # Append the results
-                results.append(
-                    {
-                        "filename": filename,
-                        "section": section,
-                        "age": age,
-                        "gender": gender,
-                    }
-                )
-            except ValueError as e:
-                # If a face could not be detected, mark it as an error
-                if "Face could not be detected" in str(e):
-                    results.append(
-                        {
-                            "filename": filename,
-                            "section": section,
-                            "age": "error",
-                            "gender": "error",
-                        }
-                    )
-                else:
-                    # For other exceptions, just log the error message
-                    print(f"Error processing {image_path}: {e}")
-            except Exception as e:
-                # Log any other exceptions
-                print(f"Unexpected error processing {image_path}: {e}")
+    # Add the new columns to the DataFrame
+    df['Gender'] = genders
+    df['Age'] = ages
 
-# Convert the results to a DataFrame
-df = pd.DataFrame(results)
+    # Save the updated DataFrame to a new CSV file
+    df.to_csv(output_csv_path, index=False)
 
-# Save the results to a CSV file
-df.to_csv("labeled_images.csv", index=False)
+    # Generate and display the age distribution plot for the current CSV file
+    age_values = [age for age in ages if age != "error"]
+    plt.hist(age_values, bins=20, edgecolor='k', alpha=0.7)
+    plt.xlabel('Age')
+    plt.ylabel('Frequency')
+    plt.title(f'Age Distribution for {csv_path}')
+    plt.grid(True)
+    plt.show()
