@@ -9,11 +9,28 @@ import numpy as np
 from data_cleaning import DataCleaning
 #from model_training import CNN, CNNModelVariant1, CNNModelVariant2
 import csv
+import random
+
+# Randomization parameters
+randomseed = 2024 # Set the random seed to a specific integer. Changing the seed will yield different model results.
+reproducibility = True # Set to false if you want to have different results each run. Can help with generating a high performing model with sequential runs
+
+def set_seed(seed): # Random seed function to set the seeds to all PyTorch/Numpy randomization functions used in the training process, ensuring reproducibility
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+
+if reproducibility:
+    set_seed(randomseed)
 
 # Set the paths to the images you wish to predict, as well as the model to be used
 image_path = "runFiles/happy_test7.jpg"  # Specify the path to your image here
 directory_path = "runFiles/imagesDirectory"  # Specify the path to your directory here
-model_dir = "models/best/baseModel"  # Specify the model directory here
+model_dir = "models/model_2024-06-15_15-44-10"  # Specify the model directory here
 model_type = 0 # 0 = Main model, 1 = Variant 1, 2 = Variant 2. You can easily figure the type of the model within the model name.
 
 output_dir="runFiles/runCleanedImages"
@@ -326,3 +343,66 @@ if model_path:
 
 else:
     print("No model file found in the specified directory.")
+
+### Generate results on test dataset (for Part 3):
+# Define the test dataset path
+test_csv_path = "data/test_dataset.csv"  # Replace with the actual path to your test dataset CSV file
+
+# Load the test dataset
+test_df = pd.read_csv(test_csv_path)
+
+# Initialize lists to store results
+image_paths = []
+true_labels = []
+predicted_labels = []
+
+# Define image transformations (if not already defined)
+normalize = transforms.Normalize(mean=[0.5], std=[0.5])
+#transform = transforms.Compose([transforms.ToTensor(), normalize])
+transform = transforms.Compose([
+    transforms.ToPILImage(),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomRotation(10),
+    transforms.RandomCrop(48, padding=4),
+    transforms.ToTensor(),
+    normalize
+])
+
+# Loop through each image in the test dataset, make predictions and store results
+for index, row in test_df.iterrows():
+    image_path = row['Path']  # Replace with the column name for image path in your test CSV
+    true_label = row['Label']  # Replace with the column name for the true label in your test CSV
+
+    # Open the image
+    image = Image.open(image_path)
+    image = np.array(image)
+    image = transform(image).unsqueeze(0)
+
+    # Make prediction
+    with torch.no_grad():
+        output = model(image)
+        _, predicted = torch.max(output, 1)
+        predicted_label = classes[predicted.item()]  # Map numerical index to label string
+
+    # Append to results lists
+    image_paths.append(image_path)
+    true_labels.append(true_label)
+    predicted_labels.append(predicted_label)
+
+# Save results to a CSV file
+results_csv_path = "results_run_test.csv"  # Replace with the desired path for the results CSV file
+with open(results_csv_path, mode='w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(["ImagePath", "TrueLabel", "PredictedLabel"])  # Write header
+    for img_path, true_lbl, pred_lbl in zip(image_paths, true_labels, predicted_labels):
+        writer.writerow([img_path, true_lbl, pred_lbl])
+
+correct_predictions = 0
+total_predictions = len(true_labels)
+
+for true_label, predicted_label in zip(true_labels, predicted_labels):
+    if true_label == predicted_label:
+        correct_predictions += 1
+
+accuracy = correct_predictions / total_predictions * 100
+print(f"Test dataset Accuracy: {accuracy:.2f}%")

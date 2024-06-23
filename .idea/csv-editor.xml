@@ -3,6 +3,20 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="\PART_1\data\test_dataset.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\model_evaluation_summary.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\PART_1\models\best\baseModel\accuracy.csv">
           <value>
             <Attribute>
@@ -66,6 +80,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\PART_1\models\model_2024-06-15_15-44-10\results.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\PART_1\models\variant1_model_2024-06-13_21-05-39\validation_loss.csv">
           <value>
             <Attribute>
@@ -108,6 +129,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\PART_1\models\variant1_model_2024-06-15_15-47-03\results.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\PART_1\models\variant2_model_2024-06-13_21-36-34\validation_loss.csv">
           <value>
             <Attribute>
@@ -130,6 +158,27 @@
           </value>
         </entry>
         <entry key="\PART_1\models\variant2_model_2024-06-13_22-50-07\validation_loss.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\models\variant2_model_2024-06-15_15-49-47\results.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\results_run_test.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_1\runFiles\directory_images_data.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
