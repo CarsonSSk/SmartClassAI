@@ -35,14 +35,39 @@ destination_dir = "data/additionalLabels/unlabelled"
 # Ensure the destination directory exists
 os.makedirs(destination_dir, exist_ok=True)
 
-# Copy images to the destination directory
+# Define the root directory containing the gender and age labeled folders
+root_dir = "data/additionalLabels"
+
+# Initialize lists for gender and age labels
+genders = []
+ages = []
+
+# Copy images to the destination directory and extract gender and age labels
 for _, row in combined_df.iterrows():
-    source_path = row['Path']
-    destination_path = os.path.join(destination_dir, row['Image Name'])
-    try:
-        shutil.copy(source_path, destination_path)
-    except Exception as e:
-        print(f"Error copying {source_path} to {destination_path}: {e}")
+    image_name = row['Image Name']
+    # Find the image in the labeled folders
+    found = False
+    for gender in ['male', 'female', 'other']:
+        for age in ['young', 'middle', 'old', 'other']:
+            potential_path = os.path.join(root_dir, gender, age, image_name)
+            if os.path.exists(potential_path):
+                genders.append(gender)
+                ages.append(age)
+                destination_path = os.path.join(destination_dir, image_name)
+                try:
+                    shutil.copy(potential_path, destination_path)
+                except Exception as e:
+                    print(f"Error copying {potential_path} to {destination_path}: {e}")
+                found = True
+                break
+        if found:
+            break
+    if not found:
+        print(f"Image {image_name} not found in labeled directories.")
+
+# Add Gender and Age columns to the DataFrame
+combined_df['Gender'] = genders
+combined_df['Age'] = ages
 
 # Save the combined DataFrame to a new CSV file
 combined_csv_path = "combined_images_train_validation_test.csv"
