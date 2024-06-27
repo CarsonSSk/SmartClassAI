@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Specify the model names that you wish to evaluate
-main_model_dir = "model_2024-06-15_15-44-10"
+main_model_dir = "model_2024-06-24_18-10-47"
 
 variant1_model_dir = "variant1_model_2024-06-15_15-47-03"
 
-variant2_model_dir = "variant2_model_2024-06-15_15-49-47"
+variant2_model_dir = "model_2024-06-24_18-10-47"
 
 best_model_dir = "model_2024-06-15_15-44-10"
 

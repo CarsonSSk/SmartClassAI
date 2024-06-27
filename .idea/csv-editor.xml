@@ -87,6 +87,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\PART_1\model_evaluation_summary.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\PART_1\models\model_2024-06-15_15-44-10\results.csv">
           <value>
             <Attribute>
@@ -143,7 +150,21 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\PART_3\kfold_results.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\PART_3\labeled_images.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\PART_3\overall_test_results.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

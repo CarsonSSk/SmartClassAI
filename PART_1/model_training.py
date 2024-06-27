@@ -23,7 +23,7 @@ hidden_size = 50  # Number of hidden units
 output_size = 4  # Number of output classes
 num_epochs = 10  # Minimum number of training epochs
 learning_rate = 0.005  # Learning rate
-patience = 3  # Early stopping patience
+patience = 5  # Early stopping patience
 randomseed = 2024 # Set the random seed to a specific integer. Changing the seed will yield different model results.
 reproducibility = True # Set to false if you want to have different results each run. Can help with generating a high performing model with sequential runs
 

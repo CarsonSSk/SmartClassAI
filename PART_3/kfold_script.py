@@ -18,8 +18,8 @@ sys.path.append(os.path.abspath('../PART_1'))
 # Define parameters
 num_epochs = 30
 learning_rate = 0.005
-patience = 3
-randomseed = 2024
+patience = 5
+randomseed = 2026
 batch_size = 20
 base_dir = os.path.abspath('../PART_1')  # Define the base directory for PART_1
 

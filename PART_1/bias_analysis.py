@@ -2,8 +2,8 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 # Load the CSV files
-#segmentation_df = pd.read_csv('combined_images_train_validation_test.csv')
-segmentation_df = pd.read_csv('with_biasMitigation_combined_images_train_validation_test.csv')
+segmentation_df = pd.read_csv('combined_images_train_validation_test.csv')
+#segmentation_df = pd.read_csv('with_biasMitigation_combined_images_train_validation_test.csv')
 test_results_df = pd.read_csv('results_run_test.csv')
 
 # Merge the DataFrames on the 'ImagePath' column
@@ -12,9 +12,9 @@ merged_df = pd.merge(segmentation_df, test_results_df, left_on='Path', right_on=
 # Function to calculate metrics for a given subset
 def calculate_metrics(y_true, y_pred):
     accuracy = accuracy_score(y_true, y_pred)
-    precision = precision_score(y_true, y_pred, average='weighted')
-    recall = recall_score(y_true, y_pred, average='weighted')
-    f1 = f1_score(y_true, y_pred, average='weighted')
+    precision = precision_score(y_true, y_pred, average='macro')
+    recall = recall_score(y_true, y_pred, average='macro')
+    f1 = f1_score(y_true, y_pred, average='macro')
     return accuracy, precision, recall, f1
 
 # Placeholder for metrics
