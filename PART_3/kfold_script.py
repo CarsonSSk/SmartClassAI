@@ -36,7 +36,13 @@ def set_seed(seed):
 set_seed(randomseed)
 
 # Load combined k-fold dataset
-kfold_data_csv = os.path.join(base_dir, 'data/kfold_dataset.csv')
+
+### First dataset is the same data used for the final model from PART 2
+### Second dataset is the new data created for bias mitigation from PART 3
+
+kfold_data_csv = os.path.join(base_dir, 'data/kfold_dataset.csv') 
+#kfold_data_csv = os.path.join(base_dir, 'with_biasMitigation_combined_images_train_validation_test.csv')
+
 data = pd.read_csv(kfold_data_csv)
 
 # Label mapping
