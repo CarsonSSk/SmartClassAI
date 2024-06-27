@@ -36,14 +36,20 @@ def set_seed(seed):
 set_seed(randomseed)
 
 # Load combined k-fold dataset
+### Choose the dataset to use
+dataset_choice = 'PART_2'  # Change this to 'PART_3' for the NEW model
 
-### First dataset is the same data used for the final model from PART 2
-### Second dataset is the new data created for bias mitigation from PART 3
-
-kfold_data_csv = os.path.join(base_dir, 'data/kfold_dataset.csv') 
-#kfold_data_csv = os.path.join(base_dir, 'with_biasMitigation_combined_images_train_validation_test.csv')
+if dataset_choice == 'PART_2':
+    kfold_data_csv = os.path.join(base_dir, 'data/kfold_dataset.csv')
+    model_base_dir = 'Part2_kfold_models'
+if dataset_choice == 'PART_3':
+    kfold_data_csv = os.path.join(base_dir, 'with_biasMitigation_combined_images_train_validation_test.csv')
+    model_base_dir = 'Part3_kfold_models'
 
 data = pd.read_csv(kfold_data_csv)
+
+# Create the model base directory if it does not exist
+os.makedirs(model_base_dir, exist_ok=True)
 
 # Label mapping
 label_mapping = {'happy': 0, 'angry': 1, 'neutral': 2, 'engaged': 3}
@@ -84,10 +90,10 @@ def kfold_cross_validation(model_class, k=10):
 
         # Train the model
         model_name = f"model_fold_{fold + 1}"
-        train_models(model, train_loader, val_loader, model_name)
+        train_models(model, train_loader, val_loader, os.path.join(model_base_dir, model_name))
 
         # Evaluate the model
-        model.load_state_dict(torch.load(os.path.join("models", model_name, "best_model.pth")))
+        model.load_state_dict(torch.load(os.path.join(model_base_dir, model_name, "best_model.pth")))
         model.eval()
         y_true = []
         y_pred = []
@@ -141,16 +147,16 @@ def kfold_cross_validation(model_class, k=10):
 
     # Convert results to DataFrame and save
     results_df = pd.DataFrame(fold_results)
-    results_df.to_csv('kfold_results.csv', index=False)
-    print("K-Fold cross-validation results saved to 'kfold_results.csv'")
+    results_df.to_csv(os.path.join(model_base_dir, 'kfold_results.csv'), index=False)
+    print(f"K-Fold cross-validation results saved to '{os.path.join(model_base_dir, 'kfold_results.csv')}'")
 
     # Save overall test results
     overall_test_results_df = pd.DataFrame(overall_test_results)
-    overall_test_results_df.to_csv('overall_test_results.csv', index=False)
-    print("Overall test results saved to 'overall_test_results.csv'")
+    overall_test_results_df.to_csv(os.path.join(model_base_dir, 'overall_test_results.csv'), index=False)
+    print(f"Overall test results saved to '{os.path.join(model_base_dir, 'overall_test_results.csv')}'")
 
-    # Generate confusion matrix
-    generate_confusion_matrix(overall_test_results_df)
+    # Generate confusion matrix using the appropriate overall test results file
+    generate_confusion_matrix(overall_test_results_df, model_base_dir)
 
 # Function to load data from paths
 def LoadDataFromPaths(paths, labels, base_dir):
@@ -169,7 +175,7 @@ def LoadDataFromPaths(paths, labels, base_dir):
     return np.array(data_x), np.array(data_y)
 
 # Function to generate and save the confusion matrix
-def generate_confusion_matrix(df):
+def generate_confusion_matrix(df, model_base_dir):
     y_true = df['True Label'].map(label_mapping).values
     y_pred = df['Predicted Label'].map(label_mapping).values
 
@@ -178,8 +184,8 @@ def generate_confusion_matrix(df):
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=classes, yticklabels=classes)
     plt.xlabel('Predicted')
     plt.ylabel('True')
-    plt.title('Confusion Matrix for K-Fold Validation')
-    plt.savefig('confusion_matrix.png')
+    plt.title('Confusion Matrix for K-Fold Validation ({model_base_dir})')
+    plt.savefig(os.path.join(model_base_dir, 'confusion_matrix.png'))
     plt.show()
 
 # Normalization and transformations
@@ -269,8 +275,8 @@ def train_models(model, train_loader, val_loader, model_name):
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
     
     best_val_loss = float('inf')
-    best_model_path = os.path.join("models", model_name, "best_model.pth")
-    os.makedirs(os.path.join("models", model_name), exist_ok=True)
+    best_model_path = os.path.join(model_name, "best_model.pth")
+    os.makedirs(model_name, exist_ok=True)
     patience_counter = 0
     limitHit = 0
     
@@ -322,7 +328,7 @@ def train_models(model, train_loader, val_loader, model_name):
             break
     
     # Save the validation loss
-    validation_loss_csv_path = os.path.join("models", model_name, "validation_loss.csv")
+    validation_loss_csv_path = os.path.join(model_name, "validation_loss.csv")
     val_loss_df = pd.DataFrame({"Validation Loss": [best_val_loss]})
     val_loss_df.to_csv(validation_loss_csv_path, index=False)
 
