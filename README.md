@@ -72,24 +72,24 @@ Part 1: Contains all folders and .py scripts.
 - with_biasMitigation_combined_images_train_validation_test.csv:
 
 PART_3:
--labeled_data: 
-  -Man:
-    -middle age:
-    -old:
-    -young:
-  -Woman:
-    -middle age:
-    -old:
-    -young:
--Part2_kfold_models:
-  -model_fold_1:
-  -models 1-10
--Part3_kfold_models:
-  -model_fold_1:
-  -models 1-10
--kfold_dataset.py: Creates the combined dataset with all the data we used for training and testing our models in Part II. Creates the kfold_dataset.csv.
--kfold_script.py: Same code as our model_training.py but only has the main model implemented and has the k-fold validation incorporated within the training loop.
--labeled_images.csv:
+- labeled_data: 
+  - Man:
+    - middle age:
+    - old:
+    - young:
+  - Woman:
+    - middle age:
+    - old:
+    - young:
+- Part2_kfold_models: holds the 10 models created at each fold when using the same dataset as in Part II.
+  - models 1-10.
+  - confusion_matrix.png: The resulting confusion matrix using the overall_test_results.csv.
+  - overall_test_results.csv: Holds the predicted and true labels after testing the 10 models.
+- Part3_kfold_models: holds the 10 models created at each fold when using the new dataset created for bias mitigation in Part III.
+  - models 1-10.
+- kfold_dataset.py: Creates the combined dataset with all the data we used for training and testing our models in Part II. Creates the kfold_dataset.csv.
+- kfold_script.py: Same code as our model_training.py but only has the main model implemented and has the k-fold validation incorporated within the training loop.
+- labeled_images.csv:
 - README.md: Read me file.
 
 ## Start up dependencies
