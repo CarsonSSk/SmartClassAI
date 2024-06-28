@@ -30,7 +30,7 @@ if reproducibility:
 # Set the paths to the images you wish to predict, as well as the model to be used
 image_path = "runFiles/happy_test7.jpg"  # Specify the path to your image here
 directory_path = "runFiles/imagesDirectory"  # Specify the path to your directory here
-model_dir = "models/model_2024-06-24_18-50-26"  # Specify the model directory here
+model_dir = "models/model_2024-06-27_22-56-49"  # Specify the model directory here
 model_type = 0 # 0 = Main model, 1 = Variant 1, 2 = Variant 2. You can easily figure the type of the model within the model name.
 
 output_dir="runFiles/runCleanedImages"

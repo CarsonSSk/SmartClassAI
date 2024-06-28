@@ -24,7 +24,7 @@ provenances = []
 genders = []
 ages = []
 
-# Walk through the extra images directory
+# Go through the extra images directory
 for gender in ['female', 'male']:
     for age in ['old']:
         folder_path = os.path.join(extra_images_dir, gender, age)
@@ -64,7 +64,7 @@ extra_df = pd.DataFrame({
     'Age': ages
 })
 
-# Combine original and extra dataframes if needed (optional)
+# Combine original and extra dataframes
 combined_df = pd.concat([original_df, extra_df], ignore_index=True)
 
 # Check for duplicates in the Image Name column
@@ -93,7 +93,7 @@ if not duplicate_image_names.empty:
 else:
     print("No duplicate image names found.")
 
-# Save the combined DataFrame to a new CSV file (optional)
+# Save the combined DataFrame to a new CSV file
 combined_csv_path = 'with_biasMitigation_combined_images_train_validation_test.csv'
 combined_df.to_csv(combined_csv_path, index=False)
 

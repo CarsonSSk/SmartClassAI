@@ -12,6 +12,7 @@ import csv
 import random
 
 # Defining the directories and CSV files containing the training, validation, and testing data
+# Warning: This script will NOT consider the extra datasets used for bias mitigation. Use unbiased_model_training instead to do so.
 base_dir = "data"
 train_data = pd.read_csv(os.path.join(base_dir, "train_dataset.csv"))
 val_data = pd.read_csv(os.path.join(base_dir, "validation_dataset.csv"))

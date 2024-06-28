@@ -2,8 +2,8 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 # Load the CSV files
-segmentation_df = pd.read_csv('combined_images_train_validation_test.csv')
-#segmentation_df = pd.read_csv('with_biasMitigation_combined_images_train_validation_test.csv')
+#segmentation_df = pd.read_csv('combined_images_train_validation_test.csv') # Uncomment to do bias analysis on model based on pre-bias mitigation data (addition of 280 images of old individuals in our case)
+segmentation_df = pd.read_csv('with_biasMitigation_combined_images_train_validation_test.csv') # Uncomment to do bias analysis on model with bias mitigation
 test_results_df = pd.read_csv('results_run_test.csv')
 
 # Merge the DataFrames on the 'ImagePath' column
