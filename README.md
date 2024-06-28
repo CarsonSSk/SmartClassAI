@@ -55,9 +55,41 @@ Part 1: Contains all folders and .py scripts.
   - train_dataset.csv: CSV that stores the data of the images assigned to the training dataset (Path, CompositeName, Label, Image Name, Source)
   - validation_dataset.csv: CSV that stores the data of the images assigned to the validation dataset (Path, CompositeName, Label, Image Name, Source)
   - test_dataset.csv: CSV that stores the data of the images assigned to the testing dataset (Path, CompositeName, Label, Image Name, Source)
+  - kfold_dataset.csv: CSV that stores all the data used for training and testing our final model in Part II. (holds 2000 images)
 - data_cleaning.py: Script that cleans the original data according to cleaning techniques, which are easily modifiable.
 - dataset_segmentation.py: Script that allows random selection of a specified number of images within the original data, for each class, and splits them into 3 datasets (training, validation, testing) to train, validate and test our classification algorithm. Number of images, proportion of images in each split, and randomization seed can be modified by the user. The script also creates a shuffled list of all images.
 - data_visualization.py: Script to visualize the data in many ways: plot the class distribution of images, plot the pixel intensity distributions within each class, sample 15 random images from each class with their corresponding pixel intensity distribution.
+- bias_analysis_results.csv:
+- bias_analysis.py:
+- combined_images_train_validation_test.csv:
+- create_bias_mitigation_dataset.py:
+- labeled_images_with_gender_age_test.csv:
+- labeled_images_with_gender_age_train.csv:
+- labeled_images_with_gender_age_validation.csv:
+- labeled_images_with_gender_age.csv:
+- unbiased_model_evaluation.py:
+- unbiased_model_training.py:
+- with_biasMitigation_combined_images_train_validation_test.csv:
+
+PART_3:
+-labeled_data: 
+  -Man:
+    -middle age:
+    -old:
+    -young:
+  -Woman:
+    -middle age:
+    -old:
+    -young:
+-Part2_kfold_models:
+  -model_fold_1:
+  -models 1-10
+-Part3_kfold_models:
+  -model_fold_1:
+  -models 1-10
+-kfold_dataset.py: Creates the combined dataset with all the data we used for training and testing our models in Part II. Creates the kfold_dataset.csv.
+-kfold_script.py: Same code as our model_training.py but only has the main model implemented and has the k-fold validation incorporated within the training loop.
+-labeled_images.csv:
 - README.md: Read me file.
 
 ## Start up dependencies
