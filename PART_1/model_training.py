@@ -12,6 +12,7 @@ import csv
 import random
 
 # Defining the directories and CSV files containing the training, validation, and testing data
+# Warning: This script will NOT consider the extra datasets used for bias mitigation. Use unbiased_model_training instead to do so.
 base_dir = "data"
 train_data = pd.read_csv(os.path.join(base_dir, "train_dataset.csv"))
 val_data = pd.read_csv(os.path.join(base_dir, "validation_dataset.csv"))
@@ -23,7 +24,7 @@ hidden_size = 50  # Number of hidden units
 output_size = 4  # Number of output classes
 num_epochs = 10  # Minimum number of training epochs
 learning_rate = 0.005  # Learning rate
-patience = 3  # Early stopping patience
+patience = 5  # Early stopping patience
 randomseed = 2024 # Set the random seed to a specific integer. Changing the seed will yield different model results.
 reproducibility = True # Set to false if you want to have different results each run. Can help with generating a high performing model with sequential runs
 
