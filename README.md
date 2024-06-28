@@ -175,3 +175,12 @@ e) Run/apply model on custom image / batch of images
 3. At the beginning, set the paths to the images you wish to predict: image_path for the single image; directory_path for the batch of images. Set the path to the model you wish to use as well as the appropriate model type (0 = main model, 1 = variant 1, 2 = variant 2).
 4. Run run_model.py.
 5. In the output, you will see the prediction of the model for each image's facial emotion. You can check if it is right or wrong! The results for the batch of images will also be saved in a csv file: runFiles/directory_images_data.csv, which contains each of the batch's image name, path, and predicted label. This allows for further analysis of the predictions if desired by the user.
+
+### Part 3
+
+f) Run K-fold with Main model from Part II and with final model from Part III:
+1. Run kfold_dataset.py to generate the combined dataset (kfold_dataset.csv) used for training and testing models in Part II.
+2. Go in the kfold_script.py and set which model you want to perform k-fold on. This selection is done on line 40. Set the dataset_choice to 'PART_2' or 'PART_3'.
+3. Set dataset_choice to 'PART_2' and run the script.
+4. Set dataset_choice to 'PART_3' and run the script again. 
+5. The results for each fold, including performance metrics and confusion matrices, will be saved and can be used for further analysis and reporting. Check PART_3\Part2_kfold_models and PART_3\Part3_kfold_models to see the results. 
