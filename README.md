@@ -1,15 +1,3 @@
-# SmartClass A.I.ssistant - PART 1+2
-
-Welcome to the SmartClass A.I.ssistant project! This project is part of COMP 472 Artificial Intelligence (Summer 2024) and aims to develop a deep learning Convolutional Neural Network (CNN) using PyTorch to analyze images of students in a classroom or online meeting setting and categorize them into distinct states or activities.
-
-## Team composition
-
-- Hao Yi Liu
-- Carson Senthilkumar
-- Qing Han Zhang
-
-Supervised by teaching assistant Mr. Amin Karimi
-
 ## Project Overview
 
 ### PART 1: Data Collection, Cleaning, Labeling & Preliminary Analysis
